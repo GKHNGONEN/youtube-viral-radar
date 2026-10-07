@@ -1,0 +1,10 @@
+{
+  "name": "youtube-viral-radar",
+  "version": "1.0.0",
+  "description": "YouTube Viral & Trend Radarı - 7/24 Bulut Versiyonu",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {}
+}
