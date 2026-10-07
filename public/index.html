@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🔥 YouTube Viral & Trend Radarı (Cloud Web Sürümü)</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background: #070b14; color: #f8fafc; padding: 30px 16px; }
+    .container { max-width: 1300px; margin: 0 auto; }
+    header { text-align: center; margin-bottom: 28px; }
+    h1 { font-size: 2.2rem; color: #38bdf8; margin-bottom: 6px; font-weight: 800; letter-spacing: -0.5px; }
+    p.subtitle { color: #94a3b8; font-size: 1rem; }
+    .cloud-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(56, 189, 248, 0.12); border: 1px solid #0284c7; color: #38bdf8; font-size: 0.8rem; font-weight: 700; padding: 5px 14px; border-radius: 20px; margin-top: 10px; }
+    
+    .panel { background: #111827; border: 1px solid #1f2937; border-radius: 18px; padding: 22px; margin-bottom: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+    .control-row { display: flex; gap: 14px; align-items: center; justify-content: center; flex-wrap: wrap; margin-bottom: 16px; }
+    
+    .filter-item { display: flex; flex-direction: column; gap: 6px; }
+    .filter-item label { font-size: 0.75rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; }
+    
+    select, button { padding: 12px 16px; font-size: 0.95rem; border-radius: 10px; font-weight: 600; outline: none; }
+    select { background: #1e293b; color: white; border: 1px solid #334155; }
+    select:focus { border-color: #38bdf8; }
+    
+    .btn-discover { background: linear-gradient(135deg, #0284c7, #6366f1); color: white; border: none; cursor: pointer; box-shadow: 0 4px 15px rgba(99,102,241,0.3); transition: all 0.2s; padding: 14px 24px; font-size: 1rem; border-radius: 10px; margin-top: 18px; }
+    .btn-discover:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(99,102,241,0.5); }
+    .btn-discover:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    .status-bar { text-align: center; font-size: 0.95rem; color: #cbd5e1; padding: 12px; background: #0b1120; border-radius: 12px; border: 1px dashed #334155; }
+    .badge-keyword { background: #0284c7; color: white; padding: 3px 10px; border-radius: 12px; font-weight: bold; font-size: 0.85rem; }
+    .badge-cat { color: #38bdf8; font-weight: 700; }
+    
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 24px; margin-top: 25px; }
+    .card { background: #111827; border: 1px solid #1f2937; border-radius: 16px; overflow: hidden; display: flex; flex-direction: column; transition: all 0.2s; }
+    .card:hover { transform: translateY(-4px); border-color: #38bdf8; box-shadow: 0 12px 30px rgba(56,189,248,0.15); }
+    
+    .thumb-wrap { position: relative; width: 100%; height: 200px; background: #000; }
+    .card img { width: 100%; height: 100%; object-fit: cover; }
+    .badge-duration { position: absolute; bottom: 10px; right: 10px; background: rgba(0, 0, 0, 0.85); color: white; padding: 3px 8px; border-radius: 6px; font-size: 0.8rem; font-weight: 700; font-family: monospace; }
+    .badge-viral { position: absolute; top: 10px; right: 10px; background: rgba(16, 185, 129, 0.95); color: white; padding: 4px 10px; border-radius: 8px; font-size: 0.85rem; font-weight: 800; box-shadow: 0 4px 10px rgba(0,0,0,0.4); }
+    .badge-outlier { position: absolute; top: 10px; left: 10px; background: rgba(239, 68, 68, 0.95); color: white; padding: 4px 10px; border-radius: 8px; font-size: 0.8rem; font-weight: 800; }
+    
+    .card-body { padding: 18px; flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
+    .card-title { font-size: 0.98rem; font-weight: 600; line-height: 1.45; margin-bottom: 12px; color: #f1f5f9; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    
+    .stats-row { display: flex; justify-content: space-between; background: #1a2234; padding: 10px 14px; border-radius: 10px; margin-bottom: 14px; font-size: 0.85rem; }
+    .stats-col { display: flex; flex-direction: column; }
+    .stats-label { color: #94a3b8; font-size: 0.75rem; }
+    .stats-val { color: #f8fafc; font-weight: 700; }
+
+    .meta { font-size: 0.85rem; color: #94a3b8; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
+    .channel-name { color: #cbd5e1; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 190px; }
+    .published-tag { color: #38bdf8; font-weight: 600; }
+    
+    .btn-group { display: flex; gap: 10px; }
+    .btn-watch { flex: 1; text-align: center; background: #1e293b; color: white; text-decoration: none; padding: 11px; border-radius: 10px; font-size: 0.9rem; font-weight: 600; transition: background 0.2s; }
+    .btn-watch:hover { background: #334155; }
+    .btn-download { flex: 1.3; background: #10b981; color: white; border: none; padding: 11px; border-radius: 10px; font-size: 0.88rem; font-weight: 700; cursor: pointer; transition: background 0.2s; }
+    .btn-download:hover { background: #059669; }
+    .saved-tag { color: #10b981; font-size: 0.85rem; text-align: center; margin-top: 10px; font-weight: bold; display: none; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🔥 YouTube Viral & Trend Radarı</h1>
+      <p class="subtitle">7/24 Kesintisiz Bulut Web Sürümü — YouTube Data API v3 Destekli</p>
+      <div class="cloud-badge">☁️ 7/24 Bulut Servisi Aktif</div>
+    </header>
+
+    <div class="panel">
+      <div class="control-row">
+        <!-- Niş Seçimi -->
+        <div class="filter-item">
+          <label>Kategori / Niş:</label>
+          <select id="nicheSelect">
+            <option value="random">🎲 Rastgele Niş Seç</option>
+            <option value="ai_movies">🎬 Yapay Zeka Filmleri & Sinematik</option>
+            <option value="extreme_sports">🏍️ Ekstrem Sporlar & Hill Climb</option>
+            <option value="sweaty_palms">😱 Yükseklik Korkusu & Uçurum</option>
+            <option value="dark_nature">🧠 Karanlık Doğa & Gizemli Canlılar</option>
+            <option value="traffic_fails">🚗 Anlık Karma & Trafik</option>
+            <option value="ancient_mysteries">🏛️ Antik Gizemler & Yasak Yerler</option>
+          </select>
+        </div>
+
+        <!-- Süre Filtresi -->
+        <div class="filter-item">
+          <label>Video Süresi (Tek Tık):</label>
+          <select id="durationSelect">
+            <option value="any">🌐 Tüm Süreler (Hepsi)</option>
+            <option value="long">🎬 Sadece Uzun Metraj & Film (> 20 Dk)</option>
+            <option value="short">⚡ Sadece Shorts / Kısa (< 4 Dk)</option>
+            <option value="medium">⏱️ Orta Süre (4 - 20 Dk)</option>
+          </select>
+        </div>
+
+        <!-- Baraj Filtresi -->
+        <div class="filter-item">
+          <label>Min. İzlenme Barajı:</label>
+          <select id="minViewsSelect">
+            <option value="50000">🔥 50.000+ İzlenme</option>
+            <option value="100000" selected>⚡ 100.000+ İzlenme (Önerilen)</option>
+            <option value="500000">🚀 500.000+ İzlenme (Mega Viral)</option>
+            <option value="1000000">👑 1.000.000+ İzlenme (Milyonluk Zirve)</option>
+          </select>
+        </div>
+
+        <button class="btn-discover" onclick="discoverViral()">🚀 Viral Videoları Tara</button>
+      </div>
+
+      <div class="status-bar" id="statusBar">
+        Hazır. İstediğin nişi ve video süresini seçip <strong>"Viral Videoları Tara"</strong> butonuna tıkla!
+      </div>
+    </div>
+
+    <div class="grid" id="videoGrid"></div>
+  </div>
+
+  <script>
+    let currentCategory = '';
+    let currentKeyword = '';
+
+    async function discoverViral() {
+      const btn = document.querySelector('.btn-discover');
+      const status = document.getElementById('statusBar');
+      const grid = document.getElementById('videoGrid');
+      const niche = document.getElementById('nicheSelect').value;
+      const duration = document.getElementById('durationSelect').value;
+      const minViews = document.getElementById('minViewsSelect').value;
+
+      btn.disabled = true;
+      btn.innerText = '🔍 Viral Videolar Taranıyor...';
+      status.innerHTML = '🤖 YouTube API taranıyor ve anormallikler filtreleniyor...';
+      grid.innerHTML = '';
+
+      try {
+        const queryParams = new URLSearchParams({ niche, duration, minViews });
+        const res = await fetch('/api/discover?' + queryParams.toString());
+        const data = await res.json();
+        
+        currentCategory = data.category;
+        currentKeyword = data.keyword;
+
+        status.innerHTML = 'Kategori: <strong class="badge-cat">' + data.category + '</strong> | Kanca: <span class="badge-keyword">' + data.keyword + '</span> | Eşik: <strong>' + Number(minViews).toLocaleString() + '+</strong> | Bulunan: <strong>' + data.videos.length + ' Video</strong>';
+        
+        if (!data.videos || data.videos.length === 0) {
+          grid.innerHTML = '<p style="text-align:center;grid-column:1/-1;padding:50px;color:#94a3b8;font-size:1.1rem;">Bu kriterlere uygun video bulunamadı. Lütfen eşiği düşürerek tekrar deneyin.</p>';
+        } else {
+          data.videos.forEach((v, index) => {
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.innerHTML = `
+              <div class="thumb-wrap">
+                <img src="${v.thumbnail}" alt="Thumbnail">
+                <div class="badge-duration">${v.durationText}</div>
+                <div class="badge-viral">${v.viewsFormatted} İzlenme</div>
+                <div class="badge-outlier">${v.outlierBadge}</div>
+              </div>
+              <div class="card-body">
+                <div class="card-title">${v.title}</div>
+                
+                <div class="stats-row">
+                  <div class="stats-col">
+                    <span class="stats-label">Kanal Abonesi</span>
+                    <span class="stats-val">${v.channelSubs}</span>
+                  </div>
+                  <div class="stats-col" style="text-align:right;">
+                    <span class="stats-label">Format / Süre</span>
+                    <span class="stats-val">${v.videoType}</span>
+                  </div>
+                </div>
+
+                <div class="meta">
+                  <span class="channel-name" title="${v.channel}">👤 ${v.channel}</span>
+                  <span class="published-tag">📅 ${v.published}</span>
+                </div>
+                <div class="btn-group">
+                  <a href="${v.url}" target="_blank" class="btn-watch">▶ İzle</a>
+                  <button class="btn-download" id="btn-save-${index}" onclick="downloadObsidianNote(${index})">💾 Obsidian .MD İndir</button>
+                </div>
+                <div class="saved-tag" id="saved-${index}">✓ Markdown İndirildi & Kopyalandı!</div>
+              </div>
+            `;
+            grid.appendChild(card);
+          });
+          window.lastVideos = data.videos;
+        }
+      } catch (e) {
+        status.innerText = 'Hata oluştu: ' + e.message;
+      } finally {
+        btn.disabled = false;
+        btn.innerText = '🚀 Viral Videoları Tara';
+      }
+    }
+
+    function downloadObsidianNote(index) {
+      const v = window.lastVideos[index];
+      const btn = document.getElementById('btn-save-' + index);
+      const tag = document.getElementById('saved-' + index);
+
+      const content = `# 🎬 Viral Video Röntgeni: ${v.title}
+
+- **Kategori / Niş:** ${currentCategory}
+- **Arama Kancası:** \`${currentKeyword}\`
+- **Video Türü / Süresi:** ${v.videoType} (${v.durationText})
+- **İzlenme Sayısı:** ${v.viewsFormatted} görüntüleme
+- **Kanal:** ${v.channel} (Abone: ${v.channelSubs})
+- **Outlier Çarpanı:** ${v.outlierBadge} (${v.outlierRatio}x)
+- **Yayın Tarihi:** ${v.published} (Son 30 gün)
+- **Video Linki:** [YouTube'da Aç ve İncele](${v.url})
+- **Thumbnail:** ![](${v.thumbnail})
+- **Analiz Tarihi:** ${new Date().toLocaleDateString('tr-TR')}
+
+---
+
+## 🧐 Algoritmik Başarı Röntgeni:
+* **Neden Öne Çıktı?** Kanalın ${v.channelSubs} abonesi olmasına karşın video **${v.viewsFormatted}** izlenme almış (${v.outlierBadge}).
+* **Format:** ${v.durationSeconds >= 1200 ? 'Bu video bir Uzun Metraj AI Filmi / Belgesel! Kitleyi hikaye ve atmosferle ekranda tutuyor.' : v.durationSeconds <= 60 ? 'Bu video bir Shorts! İlk 2 saniyedeki merak kancası ve döngü (loop) sayesinde patlamış.' : 'Standart orta metraj YouTube formatı.'}
+
+---
+
+## 🎯 Bizim İçin İçerik Üretim Aksiyonları:
+- [ ] İlk 5 saniye kancasını (görsel şok + ses tasarımı) not al.
+- [ ] **Yapay Zeka Aracı:** Bu video hangi araçla üretilmiş? (Luma Dream Machine, Kling, Higgsfield, Dreamina vb.)
+- [ ] **Global Dilsiz Format:** Konuşma olmadan sadece müzik ve ses efektleriyle küresel kitleye hitap edebilir miyiz?
+- [ ] Başlık ve kapak resmi formülünü Obsidian kütüphanemize uyarla.
+
+---
+
+## 🔗 İlgili Vault Belgeleri:
+- [[PROJE_YOL_HARITASI]]
+- [[KANCA_VE_PSIKOLOJI_REHBERI]]
+- [[CENOTE_DIVER_AI_FILM_ANALIZI]]
+- [[HARMANLAMA_VE_REMIX_METODOLOJISI]]
+`;
+
+      // 1. Panoya kopyala
+      navigator.clipboard.writeText(content).catch(() => {});
+
+      // 2. .md dosyası olarak tarayıcıdan indir
+      const sanitized = v.title.replace(/[\\/:*?"<>|]/g, '').trim().slice(0, 45);
+      const filename = `VIRAL_${sanitized}_${v.videoId}.md`;
+      const blob = new Blob([content], { type: 'text/markdown;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      btn.style.display = 'none';
+      tag.style.display = 'block';
+    }
+  </script>
+</body>
+</html>

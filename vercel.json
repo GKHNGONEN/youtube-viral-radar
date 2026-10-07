@@ -1,0 +1,7 @@
+{
+  "version": 2,
+  "rewrites": [
+    { "source": "/api/discover", "destination": "/api/discover.js" },
+    { "source": "/(.*)", "destination": "/public/$1" }
+  ]
+}
