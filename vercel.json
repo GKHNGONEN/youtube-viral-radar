@@ -1,7 +1,15 @@
 {
   "version": 2,
   "rewrites": [
+    { "source": "/api/niches", "destination": "/api/niches.js" },
+    { "source": "/api/discover-channels", "destination": "/api/discover-channels.js" },
+    { "source": "/api/calculate-earnings", "destination": "/api/calculate-earnings.js" },
+    { "source": "/api/discover-free", "destination": "/api/discover-free.js" },
     { "source": "/api/discover", "destination": "/api/discover.js" },
+    { "source": "/api/videos", "destination": "/api/videos.js" },
+    { "source": "/api/save-channel", "destination": "/api/save-channel.js" },
+    { "source": "/api/save", "destination": "/api/save.js" },
+    { "source": "/api/(.*)", "destination": "/api/index.js" },
     { "source": "/(.*)", "destination": "/public/$1" }
   ]
 }
