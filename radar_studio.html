@@ -1,0 +1,1707 @@
+<!DOCTYPE html>
+<html class="dark" lang="tr">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>YouTube Viral & Micro-Channel Radar Studio (Stitch Dark UI)</title>
+  <!-- Tailwind CSS v3 -->
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            radar: {
+              bg: '#0a0f1d',
+              card: '#13192e',
+              cardBorder: '#1e294b',
+              accent: '#38bdf8',
+              purple: '#8b5cf6',
+              green: '#22c55e'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #0a0f1d; }
+    ::-webkit-scrollbar-thumb { background: #1e294b; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #334155; }
+    .glass-panel { background: rgba(19, 25, 46, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(30, 41, 75, 0.8); }
+  </style>
+</head>
+<body class="bg-[#0a0f1d] text-slate-100 font-sans antialiased selection:bg-sky-500 selection:text-white min-h-screen flex flex-col">
+
+  <!-- TOP HEADER -->
+  <header class="border-b border-slate-800/80 bg-[#0a0f1d]/90 backdrop-blur-md sticky top-0 z-50 px-4 lg:px-8 py-3.5 flex items-center justify-between">
+    <div class="flex items-center space-x-8">
+      <!-- Logo -->
+      <div class="flex items-center space-x-3 cursor-pointer">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-500 via-indigo-600 to-purple-600 flex items-center justify-center shadow-lg shadow-sky-500/20">
+          <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+          </svg>
+        </div>
+        <div>
+          <span class="text-xl font-black tracking-wider bg-gradient-to-r from-white via-sky-200 to-indigo-300 bg-clip-text text-transparent">RADAR STUDIO</span>
+          <span class="text-[10px] block text-sky-400 font-semibold uppercase tracking-widest">Google Stitch UI Edition</span>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs (3 ÇALIŞMA MODU) -->
+      <nav class="hidden md:flex items-center space-x-1 bg-[#13192e] p-1.5 rounded-full border border-slate-800">
+        <button id="tabVideoApi" onclick="switchMode('video_api')" class="px-5 py-2 rounded-full text-xs font-bold transition-all text-slate-400 hover:text-white">
+          ⚡ Video Radarı (API)
+        </button>
+        <button id="tabVideoFree" onclick="switchMode('video_free')" class="px-5 py-2 rounded-full text-xs font-bold transition-all text-slate-400 hover:text-white">
+          🛡️ Kotasız Video Radarı
+        </button>
+        <button id="tabBabyChannel" onclick="switchMode('baby_channel')" class="px-5 py-2 rounded-full text-xs font-bold transition-all text-white bg-slate-800/90 shadow-sm relative border border-slate-700/60 flex items-center space-x-1.5">
+          <span>🐣 Bebek Kanal Avcısı</span>
+          <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
+          <span class="absolute -bottom-2 left-1/2 -translate-x-1/2 w-8 h-1 bg-cyan-400 rounded-full shadow-[0_0_10px_#22d3ee]"></span>
+        </button>
+      </nav>
+    </div>
+
+    <!-- Right Actions -->
+    <div class="flex items-center space-x-3">
+      <button onclick="openVideoLibraryModal()" title="Üretilen Tüm Videolar & Depolama Yönetimi" class="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-blue-600/30 to-indigo-600/30 border border-blue-500/50 text-blue-200 hover:text-white hover:bg-blue-600/40 text-xs font-bold transition-all flex items-center space-x-1.5 shadow-lg shadow-blue-950/40">
+        <span>📁 Video Kütüphanem</span>
+        <span id="headerVideoCountBadge" class="bg-blue-500 text-white text-[10px] px-1.5 py-0.2 rounded-full font-extrabold">0</span>
+      </button>
+      <button onclick="openRevenueCalculatorModal()" title="Gelir & RPM Simülatörü" class="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600/30 to-teal-600/30 border border-emerald-500/50 text-emerald-300 hover:text-white hover:bg-emerald-600/40 text-xs font-bold transition-all flex items-center space-x-1.5 shadow-lg shadow-emerald-950/40">
+        <span>💰 Gelir Simülatörü</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="flex-1 max-w-[1440px] w-full mx-auto px-4 lg:px-8 py-7 flex flex-col space-y-7">
+    <!-- RADAR SEARCH & RESULTS CONTAINER -->
+    <div id="radarMainContent" class="flex flex-col space-y-7">
+
+    <!-- CONTROL & SEARCH PANEL -->
+    <section class="glass-panel p-5 rounded-2xl shadow-2xl flex flex-col space-y-4">
+      <!-- Row 1: Niche Selector & Keyword Input -->
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+        <!-- Niche Selector (4 Cols) -->
+        <div class="md:col-span-4 flex flex-col space-y-1.5">
+          <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center justify-between">
+            <span>🎯 Niş / Sektör Seçimi</span>
+          </label>
+          <select id="nicheSelect" class="w-full bg-[#0b1120] border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-sky-500 transition-colors">
+            <option value="random">🎲 Rastgele Niş Seç</option>
+          </select>
+        </div>
+
+        <!-- Custom Search Bar (6 Cols) -->
+        <div class="md:col-span-6 flex flex-col space-y-1.5">
+          <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center justify-between">
+            <span id="searchLabel">🔍 Özel Arama Kancası</span>
+            <span class="text-slate-500 text-[11px]">Serbest arama için yazın</span>
+          </label>
+          <div class="relative">
+            <input id="customQueryInput" type="text" placeholder="Örn: extreme dirt bike hill climb, ai sci fi movie, liminal spaces..." class="w-full bg-[#0b1120] border border-slate-700/80 rounded-xl pl-4 pr-10 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-sky-500 transition-colors" onkeydown="if(event.key==='Enter') executeRadar();"/>
+            <button onclick="document.getElementById('customQueryInput').value=''; document.getElementById('customQueryInput').focus();" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300">✕</button>
+          </div>
+        </div>
+
+        <!-- Discover Button (2 Cols) -->
+        <div class="md:col-span-2 flex flex-col justify-end">
+          <button id="btnSearch" onclick="executeRadar()" class="w-full py-2.5 px-4 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-400 hover:to-indigo-500 shadow-lg shadow-sky-500/25 transition-all flex items-center justify-center space-x-2">
+            <span id="btnSearchIcon">🚀</span>
+            <span id="btnSearchText">Radarı Başlat</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Row 2: Dynamic Filters & Sorting Bar -->
+      <div class="pt-3 border-t border-slate-800/80 grid grid-cols-2 sm:grid-cols-5 gap-3 text-xs">
+        <!-- Filter 1: Age / Time -->
+        <div class="flex flex-col space-y-1">
+          <label id="lblFilter1" class="font-semibold text-slate-400 uppercase tracking-wider text-[10px]">🎂 Kanal Yaşı Tavanı</label>
+          <select id="selFilter1" class="bg-[#0b1120] border border-slate-700/80 rounded-lg px-2.5 py-2 text-slate-200">
+            <option value="30">Son 30 Gün (Süper Yeni)</option>
+            <option value="60">Son 60 Gün (2 Ay)</option>
+            <option value="90" selected>Son 90 Gün (Önerilen)</option>
+            <option value="180">Son 6 Ay (Geniş Havuz)</option>
+            <option value="365">Son 1 Yıl</option>
+          </select>
+        </div>
+
+        <!-- Filter 2: Max Subs -->
+        <div class="flex flex-col space-y-1">
+          <label class="font-semibold text-slate-400 uppercase tracking-wider text-[10px]">👥 Abone Üst Sınırı</label>
+          <select id="selMaxSubs" class="bg-[#0b1120] border border-slate-700/80 rounded-lg px-2.5 py-2 text-slate-200">
+            <option value="1000">&lt; 1.000 Abone (Mikro)</option>
+            <option value="5000">&lt; 5.000 Abone</option>
+            <option value="15000" selected>&lt; 15.000 Abone (Kuluçka)</option>
+            <option value="50000">&lt; 50.000 Abone</option>
+            <option value="all">Tüm Kanallar</option>
+          </select>
+        </div>
+
+        <!-- Filter 3: Min Views / Min Avg Views -->
+        <div class="flex flex-col space-y-1">
+          <label id="lblFilter3" class="font-semibold text-slate-400 uppercase tracking-wider text-[10px]">📈 Min. Video Başı İzlenme</label>
+          <select id="selMinViews" class="bg-[#0b1120] border border-slate-700/80 rounded-lg px-2.5 py-2 text-slate-200">
+            <option value="500">&gt; 500 İzlenme</option>
+            <option value="1000">&gt; 1.000 İzlenme</option>
+            <option value="2500" selected>&gt; 2.500 İzlenme (Önerilen)</option>
+            <option value="5000">&gt; 5.000 İzlenme</option>
+            <option value="10000">&gt; 10.000 İzlenme</option>
+          </select>
+        </div>
+
+        <!-- Filter 4: Dynamic 4th Filter (Baby Channels: Son Video Canlılığı | Video Radarları: ⏱️ Video Süre Türü) -->
+        <div id="colFilterRecent" class="flex flex-col space-y-1">
+          <label id="lblFilter4" class="font-bold text-cyan-400 uppercase tracking-wider text-[10px]">⚡ Son Video Canlılığı</label>
+          <select id="selMinRecentViews" class="bg-[#0b1120] border border-cyan-800/80 rounded-lg px-2.5 py-2 text-cyan-200">
+            <option value="0" selected>Tümü (Canlılık Rozetiyle Göster)</option>
+            <option value="1000">&gt; 1.000 (Canlı İvme)</option>
+            <option value="1500">&gt; 1.500 (İstikrarlı)</option>
+            <option value="3000">&gt; 3.000 (Güçlü İvme)</option>
+            <option value="5000">&gt; 5.000 (Alev Alev)</option>
+          </select>
+          <select id="selDuration" class="hidden bg-[#0b1120] border border-slate-700/80 rounded-lg px-2.5 py-2 text-slate-200">
+            <option value="any" selected>Tüm Süreler</option>
+            <option value="short">⚡ Shorts (&lt;4 dk)</option>
+            <option value="medium">⏱️ Standart (4-20 dk)</option>
+            <option value="long">🎬 Uzun Film (&gt;20 dk)</option>
+          </select>
+        </div>
+
+        <!-- Filter 5: Sorting -->
+        <div class="flex flex-col space-y-1">
+          <label class="font-semibold text-slate-400 uppercase tracking-wider text-[10px]">📊 Sıralama Kriteri</label>
+          <select id="selSortBy" onchange="applyClientSort()" class="bg-[#0b1120] border border-slate-700/80 rounded-lg px-2.5 py-2 text-slate-200">
+            <option value="breakout">⭐ Breakout Skoru (0-100)</option>
+            <option value="recent">⚡ Son Videoları En Çok İzlenen</option>
+            <option value="ratio">🔥 İzlenme/Abone Çarpanı</option>
+            <option value="views">👑 En Çok İzlenen</option>
+            <option value="age">🎂 En Yeni Kanal</option>
+          </select>
+        </div>
+      </div>
+    </section>
+
+    <!-- STATUS & STATS BANNER -->
+    <div id="statsBanner" class="flex flex-wrap items-center justify-between gap-3 px-2 text-sm text-slate-400">
+      <div class="flex items-center space-x-2">
+        <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+        <span id="bannerTitle" class="font-semibold text-slate-200">Keşfe Hazır</span>
+        <span id="bannerDetails" class="text-xs text-slate-500">• Niş seçin veya arama yapın</span>
+      </div>
+      <div id="resultCountBadge" class="text-xs font-semibold px-3 py-1 bg-slate-800/80 rounded-full border border-slate-700/50 text-slate-300">
+        0 Sonuç
+      </div>
+    </div>
+
+    <!-- LOADING SPINNER -->
+    <div id="loadingBox" class="hidden py-16 flex flex-col items-center justify-center space-y-4">
+      <div class="w-12 h-12 border-4 border-sky-500/20 border-t-sky-400 rounded-full animate-spin"></div>
+      <p id="loadingText" class="text-slate-300 font-semibold text-sm">YouTube taranıyor ve kuluçka kanallar hesaplanıyor...</p>
+    </div>
+
+    <!-- RESULTS GRID CONTAINER -->
+    <div id="resultsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <!-- Dinamik Kartlar Buraya Gelecek -->
+    </div>
+
+    </div>
+    <!-- END OF RADAR MAIN CONTENT -->
+
+  </main>
+
+    <!-- JAVASCRIPT APP LOGIC -->
+  <script>
+    let currentMode = 'baby_channel'; // 'baby_channel' | 'video_api' | 'video_free'
+    let currentResults = [];
+    let currentCategory = '';
+    let currentKeyword = '';
+    let activeRadarRequestId = 0;
+
+    // Niş listesini API'den çek
+    async function loadNiches() {
+      try {
+        const res = await fetch('/api/niches');
+        const niches = await res.json();
+        const sel = document.getElementById('nicheSelect');
+        niches.forEach(n => {
+          const opt = document.createElement('option');
+          opt.value = n.id;
+          opt.textContent = n.category;
+          sel.appendChild(opt);
+        });
+      } catch (e) {}
+    }
+
+    async function pickRandomNiche() {
+      const sel = document.getElementById('nicheSelect');
+      const count = sel.options.length;
+      if (count > 1) {
+        const rIndex = 1 + Math.floor(Math.random() * (count - 1));
+        sel.selectedIndex = rIndex;
+        document.getElementById('customQueryInput').value = '';
+        executeRadar();
+      }
+    }
+
+    function switchMode(mode) {
+      currentMode = mode;
+      
+      const tabVideoApi = document.getElementById('tabVideoApi');
+      const tabVideoFree = document.getElementById('tabVideoFree');
+      const tabBabyChannel = document.getElementById('tabBabyChannel');
+      const radarMainContent = document.getElementById('radarMainContent');
+      const engineStatusText = document.getElementById('engineStatusText');
+      const lblFilter1 = document.getElementById('lblFilter1');
+      const selFilter1 = document.getElementById('selFilter1');
+      const lblFilter3 = document.getElementById('lblFilter3');
+      const selMinViews = document.getElementById('selMinViews');
+      const lblFilter4 = document.getElementById('lblFilter4');
+      const selMinRecentViews = document.getElementById('selMinRecentViews');
+      const selDuration = document.getElementById('selDuration');
+      const selSortBy = document.getElementById('selSortBy');
+
+      // Reset Tab Styles
+      [tabVideoApi, tabVideoFree, tabBabyChannel].forEach(btn => {
+        if (!btn) return;
+        btn.className = "px-5 py-2 rounded-full text-xs font-bold transition-all text-slate-400 hover:text-white";
+      });
+
+      if (radarMainContent) radarMainContent.classList.remove('hidden');
+
+      if (mode === 'baby_channel') {
+        tabBabyChannel.className = "px-5 py-2 rounded-full text-xs font-bold transition-all text-white bg-slate-800/90 shadow-sm relative border border-slate-700/60 flex items-center space-x-1.5";
+        tabBabyChannel.innerHTML = '<span>🐣 Bebek Kanal Avcısı</span><span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span><span class="absolute -bottom-2 left-1/2 -translate-x-1/2 w-8 h-1 bg-cyan-400 rounded-full shadow-[0_0_10px_#22d3ee]"></span>';
+        if (engineStatusText) engineStatusText.textContent = "Kuluçka Kanal Radarı Devrede";
+        lblFilter1.textContent = "🎂 Kanal Yaşı Tavanı";
+        selFilter1.innerHTML = '<option value="30">Son 30 Gün (Süper Yeni)</option><option value="60">Son 60 Gün (2 Ay)</option><option value="90" selected>Son 90 Gün (Önerilen)</option><option value="180">Son 6 Ay</option><option value="365">Son 1 Yıl</option>';
+        lblFilter3.textContent = "📈 Min. Video Başı İzlenme";
+        selMinViews.innerHTML = '<option value="500">&gt; 500 İzlenme</option><option value="1000">&gt; 1.000 İzlenme</option><option value="2500" selected>&gt; 2.500 İzlenme (Önerilen)</option><option value="5000">&gt; 5.000 İzlenme</option><option value="10000">&gt; 10.000 İzlenme</option>';
+        
+        lblFilter4.textContent = "⚡ Son Video Canlılığı";
+        lblFilter4.className = "font-bold text-cyan-400 uppercase tracking-wider text-[10px]";
+        selMinRecentViews.innerHTML = '<option value="0" selected>Tümü (Canlılık Rozetiyle Göster)</option><option value="1000">&gt; 1.000 (Canlı İvme)</option><option value="1500">&gt; 1.500 (İstikrarlı)</option><option value="3000">&gt; 3.000 (Güçlü İvme)</option><option value="5000">&gt; 5.000 (Alev Alev)</option>';
+        selMinRecentViews.classList.remove('hidden');
+        selDuration.classList.add('hidden');
+
+        selSortBy.innerHTML = '<option value="breakout">⭐ Breakout Skoru (0-100)</option><option value="recent">⚡ Son Videoları En Çok İzlenen</option><option value="ratio">🔥 İzlenme/Abone Çarpanı</option><option value="views">👑 En Çok İzlenen</option><option value="age">🎂 En Yeni Kanal</option>';
+      } else if (mode === 'video_api') {
+        tabVideoApi.className = "px-5 py-2 rounded-full text-xs font-bold transition-all text-white bg-sky-600 shadow-md relative";
+        tabVideoApi.innerHTML = '<span>⚡ Video Radarı (API)</span>';
+        if (engineStatusText) engineStatusText.textContent = "YouTube Data API v3 Video Radarı";
+        lblFilter1.textContent = "📅 Yükleme Zamanı Filtresi";
+        selFilter1.innerHTML = '<option value="7days">Son 7 Gün</option><option value="30days">Son 30 Gün</option><option value="90days" selected>Son 3 Ay (Önerilen)</option><option value="365days">Son 1 Yıl</option>';
+        lblFilter3.textContent = "📈 Min. Video İzlenmesi";
+        selMinViews.innerHTML = '<option value="5000">&gt; 5.000 İzlenme</option><option value="10000">&gt; 10.000 İzlenme</option><option value="20000" selected>&gt; 20.000 İzlenme</option><option value="50000">&gt; 50.000 İzlenme</option><option value="100000">&gt; 100.000 İzlenme</option>';
+
+        lblFilter4.textContent = "⏱️ Video Süre Türü";
+        lblFilter4.className = "font-semibold text-slate-400 uppercase tracking-wider text-[10px]";
+        selMinRecentViews.classList.add('hidden');
+        selDuration.classList.remove('hidden');
+        selDuration.innerHTML = '<option value="any" selected>Tüm Süreler</option><option value="short">⚡ Shorts (&lt;4 dk)</option><option value="medium">⏱️ Standart (4-20 dk)</option><option value="long">🎬 Uzun Film (&gt;20 dk)</option>';
+
+        selSortBy.innerHTML = '<option value="velocity" selected>🔥 Günlük Hız (Velocity)</option><option value="outlier">⚡ Outlier Çarpanı</option><option value="views">👑 Toplam İzlenme</option><option value="duration_desc">⏱️ En Uzun Süre</option><option value="duration_asc">⚡ En Kısa Süre (Shorts)</option>';
+      } else if (mode === 'video_free') {
+        tabVideoFree.className = "px-5 py-2 rounded-full text-xs font-bold transition-all text-white bg-emerald-600 shadow-md relative";
+        tabVideoFree.innerHTML = '<span>🛡️ Kotasız Video Radarı</span>';
+        if (engineStatusText) engineStatusText.textContent = "Kotasız Açık Kaynak Radarı (yt-dlp)";
+        lblFilter1.textContent = "📅 Arama Modu";
+        selFilter1.innerHTML = '<option value="trending" selected>🔥 En Popüler Videolar</option><option value="recent">⚡ Yeni Yüklenenler</option>';
+        lblFilter3.textContent = "📈 Min. Video İzlenmesi";
+        selMinViews.innerHTML = '<option value="5000">&gt; 5.000 İzlenme</option><option value="10000">&gt; 10.000 İzlenme</option><option value="20000" selected>&gt; 20.000 İzlenme</option><option value="50000">&gt; 50.000 İzlenme</option><option value="100000">&gt; 100.000 İzlenme</option>';
+
+        lblFilter4.textContent = "⏱️ Video Süre Türü";
+        lblFilter4.className = "font-semibold text-slate-400 uppercase tracking-wider text-[10px]";
+        selMinRecentViews.classList.add('hidden');
+        selDuration.classList.remove('hidden');
+        selDuration.innerHTML = '<option value="any" selected>Tüm Süreler</option><option value="short">⚡ Shorts (&lt;60 sn)</option><option value="medium">⏱️ Standart (1-20 dk)</option><option value="long">🎬 Uzun Film (&gt;20 dk)</option>';
+
+        selSortBy.innerHTML = '<option value="outlier" selected>🔥 Outlier Çarpanı (Varsayılan)</option><option value="views">👑 Toplam İzlenme</option><option value="duration_desc">⏱️ En Uzun Süre</option><option value="duration_asc">⚡ En Kısa Süre (Shorts)</option>';
+      }
+
+      executeRadar();
+    }
+
+    async function executeRadar() {
+      const niche = document.getElementById('nicheSelect').value;
+      const customQuery = document.getElementById('customQueryInput').value.trim();
+      const filter1 = document.getElementById('selFilter1').value;
+      const maxSubs = document.getElementById('selMaxSubs').value;
+      const minViews = document.getElementById('selMinViews').value;
+      const minRecentViews = document.getElementById('selMinRecentViews')?.value || '0';
+      const durationVal = document.getElementById('selDuration')?.value || 'any';
+      const sortBy = document.getElementById('selSortBy').value;
+
+      const loadingBox = document.getElementById('loadingBox');
+      const resultsGrid = document.getElementById('resultsGrid');
+      const bannerTitle = document.getElementById('bannerTitle');
+      const bannerDetails = document.getElementById('bannerDetails');
+      const resultCountBadge = document.getElementById('resultCountBadge');
+
+      loadingBox.classList.remove('hidden');
+      resultsGrid.innerHTML = '';
+      bannerTitle.textContent = "Taranıyor...";
+      bannerDetails.textContent = "Algoritmalar ve süre filtreleri hesaplanıyor...";
+
+      const thisRequestId = ++activeRadarRequestId;
+
+      try {
+        let endpoint = '';
+        if (currentMode === 'baby_channel') {
+          endpoint = '/api/discover-channels?niche=' + encodeURIComponent(niche) +
+                     '&customQuery=' + encodeURIComponent(customQuery) +
+                     '&maxDays=' + filter1 +
+                     '&maxSubs=' + maxSubs +
+                     '&minAvgViews=' + minViews +
+                     '&minRecentViews=' + minRecentViews +
+                     '&sortBy=' + sortBy;
+        } else if (currentMode === 'video_api') {
+          endpoint = '/api/discover?niche=' + encodeURIComponent(niche) +
+                     '&customQuery=' + encodeURIComponent(customQuery) +
+                     '&timeFilter=' + filter1 +
+                     '&duration=' + durationVal +
+                     '&maxSubs=' + maxSubs +
+                     '&minViews=' + minViews +
+                     '&sortBy=' + sortBy;
+        } else {
+          endpoint = '/api/discover-free?niche=' + encodeURIComponent(niche) +
+                     '&customQuery=' + encodeURIComponent(customQuery) +
+                     '&duration=' + durationVal +
+                     '&maxSubs=' + maxSubs +
+                     '&minViews=' + minViews +
+                     '&sortBy=' + sortBy;
+        }
+
+        const res = await fetch(endpoint);
+        const data = await res.json();
+
+        // Eski veya sekme değişimiyle çakışan istekleri arayüze basma
+        if (thisRequestId !== activeRadarRequestId) return;
+
+        currentCategory = data.category || '';
+        currentKeyword = data.keyword || '';
+        if (currentMode === 'baby_channel') {
+          currentResults = Array.isArray(data.channels) ? data.channels : [];
+        } else {
+          currentResults = Array.isArray(data.videos) ? data.videos : [];
+        }
+
+        loadingBox.classList.add('hidden');
+        bannerTitle.textContent = currentCategory;
+        bannerDetails.textContent = 'Arama Kancası: "' + currentKeyword + '"';
+        resultCountBadge.textContent = currentResults.length + ' Sonuç Bulundu';
+
+        renderCards();
+      } catch (err) {
+        if (thisRequestId !== activeRadarRequestId) return;
+        loadingBox.classList.add('hidden');
+        bannerTitle.textContent = "Hata Oluştu";
+        bannerDetails.textContent = err.message;
+        alert("Radar taraması sırasında hata: " + err.message);
+      }
+    }
+
+    function applyClientSort() {
+      const sortBy = document.getElementById('selSortBy').value;
+      if (!currentResults || currentResults.length === 0) return;
+
+      if (currentMode === 'baby_channel') {
+        if (sortBy === 'breakout') currentResults.sort((a,b) => b.breakoutScore - a.breakoutScore);
+        else if (sortBy === 'recent') currentResults.sort((a,b) => b.recentAvgViews - a.recentAvgViews);
+        else if (sortBy === 'ratio') currentResults.sort((a,b) => b.viewSubRatio - a.viewSubRatio);
+        else if (sortBy === 'views') currentResults.sort((a,b) => b.avgViews - a.avgViews);
+        else if (sortBy === 'age') currentResults.sort((a,b) => a.ageDays - b.ageDays);
+      } else {
+        if (sortBy === 'velocity') currentResults.sort((a,b) => b.viewsPerDay - a.viewsPerDay);
+        else if (sortBy === 'outlier') currentResults.sort((a,b) => b.outlierRatio - a.outlierRatio);
+        else if (sortBy === 'views') currentResults.sort((a,b) => b.viewCount - a.viewCount);
+        else if (sortBy === 'duration_desc') currentResults.sort((a,b) => (b.durationSeconds || 0) - (a.durationSeconds || 0));
+        else if (sortBy === 'duration_asc') currentResults.sort((a,b) => (a.durationSeconds || 0) - (b.durationSeconds || 0));
+      }
+      renderCards();
+    }
+
+    function renderCards() {
+      const resultsGrid = document.getElementById('resultsGrid');
+      resultsGrid.innerHTML = '';
+
+      if (currentResults.length === 0) {
+        resultsGrid.innerHTML = `
+          <div class="col-span-full py-12 text-center text-slate-500">
+            <p class="text-base font-semibold">Bu filtre kriterleriyle sonuç bulunamadı.</p>
+            <p class="text-xs mt-1">Filtreleri esnetmeyi (örneğin gün tavanını 90 güne veya abone sınırını 25K'ya çekmeyi) deneyebilirsiniz.</p>
+          </div>
+        `;
+        return;
+      }
+
+      if (currentMode === 'baby_channel') {
+        // 🐣 BEBEK KANAL KARTLARI (Stitch UI Tasarımı)
+        currentResults.forEach(ch => {
+          if (!ch || !ch.channelId || ch.videoId) return;
+
+          const chTitle = ch.title || 'İsimsiz Kanal';
+          const chHandle = ch.handle || '@kanal';
+          const chAgeDays = ch.ageDays != null ? ch.ageDays : 0;
+          const chSubsFormatted = ch.subsFormatted || '0';
+          const chBreakoutScore = ch.breakoutScore != null ? ch.breakoutScore : 0;
+          const chViewSubRatio = ch.viewSubRatio != null ? ch.viewSubRatio : 1;
+          const chRecentAvgViewsFormatted = ch.recentAvgViewsFormatted || '0';
+          const chAvgViewsFormatted = ch.avgViewsFormatted || '0';
+          const chCountry = ch.country || 'Global';
+          const chAvatar = ch.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(chTitle)}&background=0284c7&color=fff&bold=true`;
+          const chConsistencyBadge = ch.consistencyBadge || '⚡ Canlı İvme';
+          const chConsistencyClass = ch.consistencyClass || 'text-slate-300 bg-slate-800 border-slate-700';
+          const minUsd = ch.earnings?.monthlyEarningsUsd?.min != null ? ch.earnings.monthlyEarningsUsd.min : '0';
+          const maxUsd = ch.earnings?.monthlyEarningsUsd?.max != null ? ch.earnings.monthlyEarningsUsd.max : '0';
+          const medianTry = ch.earnings?.monthlyEarningsTry?.median != null ? ch.earnings.monthlyEarningsTry.median.toLocaleString('tr-TR') : '0';
+
+          const chFormat = ch.channelFormat || ch.earnings?.contentType || 'shorts';
+          const chFormatLabel = ch.formatLabel || ch.earnings?.formatLabel || (chFormat === 'long_form' ? '🎬 Uzun Video' : chFormat === 'hybrid' ? '🔀 Hibrit' : '⚡ Shorts');
+          const chFormatBadgeClass = ch.formatBadgeClass || (chFormat === 'long_form' ? 'text-cyan-300 bg-cyan-950/40 border-cyan-800/60' : chFormat === 'hybrid' ? 'text-violet-300 bg-violet-950/40 border-violet-800/60' : 'text-amber-300 bg-amber-950/40 border-amber-800/60');
+
+          const card = document.createElement('div');
+          card.className = "bg-[#13192e] border border-slate-800 rounded-2xl p-6 flex flex-col justify-between hover:border-sky-500/50 transition-all shadow-xl relative group";
+
+          let videoThumbsHtml = '';
+          if (Array.isArray(ch.topVideos) && ch.topVideos.length > 0) {
+            videoThumbsHtml = `
+              <div class="space-y-2 mb-5">
+                <div class="flex items-center justify-between">
+                  <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Son Yüklemeler</span>
+                  <span class="text-[11px] text-sky-400 font-semibold">Ort: ${chRecentAvgViewsFormatted} izl.</span>
+                </div>
+                <div class="grid grid-cols-3 gap-2">
+                  ${ch.topVideos.map(v => `
+                    <a href="${v.url || '#'}" target="_blank" class="relative rounded-lg overflow-hidden border border-slate-700/60 aspect-video block group/thumb">
+                      <img src="${v.thumbnail || ''}" referrerpolicy="no-referrer" onerror="this.onerror=null; this.src='https://i.ytimg.com/vi/${v.id || ''}/hqdefault.jpg';" class="w-full h-full object-cover group-hover/thumb:scale-105 transition-transform" alt="${(v.title || '').replace(/"/g, '&quot;')}" />
+                      <div class="absolute bottom-1 right-1 bg-black/85 backdrop-blur-sm px-1.5 py-0.5 rounded text-[9px] font-bold text-slate-100 border border-white/10 shadow">
+                        👁️ ${v.viewsFormatted || ''}
+                      </div>
+                    </a>
+                  `).join('')}
+                </div>
+              </div>
+            `;
+          }
+
+          card.innerHTML = `
+            <div>
+              <!-- Header -->
+              <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center space-x-3">
+                  <div class="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-500 to-sky-400 p-0.5 shadow-md flex-shrink-0">
+                    <img src="${chAvatar}" referrerpolicy="no-referrer" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=' + encodeURIComponent('${chTitle.replace(/['"]/g, '')}') + '&background=0284c7&color=fff&bold=true';" class="w-full h-full rounded-full object-cover bg-slate-900" alt="${chTitle}" />
+                  </div>
+                  <div class="min-w-0">
+                    <h3 class="font-bold text-slate-100 text-base leading-tight truncate max-w-[150px]">${chTitle}</h3>
+                    <p class="text-xs text-sky-400 truncate">${chHandle}</p>
+                  </div>
+                </div>
+                <span class="px-3 py-1 bg-slate-800/90 border border-slate-700/60 rounded-full text-xs font-semibold text-emerald-400 whitespace-nowrap">
+                  🎂 ${chAgeDays} gün
+                </span>
+              </div>
+
+              <!-- Canlılık / İstikrar Rozeti -->
+              <div class="mb-4">
+                <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold border ${chConsistencyClass}">
+                  ${chConsistencyBadge}
+                </span>
+              </div>
+
+              <!-- Stats & Breakout Ring -->
+              <div class="flex items-center justify-between mb-5 bg-[#0a0f1d]/60 p-4 rounded-xl border border-slate-800/80">
+                <div>
+                  <div class="text-xl font-extrabold text-white tracking-tight">${chSubsFormatted} abone</div>
+                  <div class="text-[11px] text-slate-400 mb-2">🔥 ${chViewSubRatio}x Outlier Katı</div>
+                  <div class="text-xs font-bold text-emerald-400">⚡ ${chRecentAvgViewsFormatted} <span class="text-[10px] font-normal text-slate-400">(son videolar ort.)</span></div>
+                  <div class="text-[11px] text-slate-500">Kanal geneli: ${chAvgViewsFormatted} / video</div>
+                </div>
+
+                <!-- Circular Progress Ring (Breakout Score) -->
+                <div class="flex flex-col items-center">
+                  <div class="relative w-16 h-16 flex items-center justify-center">
+                    <svg class="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                      <path class="text-slate-800" stroke-width="3.5" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                      <path class="text-cyan-400" stroke-dasharray="${chBreakoutScore}, 100" stroke-linecap="round" stroke-width="3.5" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                    </svg>
+                    <div class="absolute inset-0 flex flex-col items-center justify-center text-center">
+                      <span class="text-sm font-bold text-white">${chBreakoutScore}</span>
+                    </div>
+                  </div>
+                  <span class="text-[10px] text-slate-400 font-semibold mt-1">Breakout Skoru</span>
+                </div>
+              </div>
+
+              <!-- 💰 Tahmini Aylık Gelir Kutusu (GitHub AI Algoritması) -->
+              <div class="mb-4 bg-gradient-to-r from-emerald-950/40 via-teal-950/20 to-slate-900 border border-emerald-500/30 p-3 rounded-xl flex items-center justify-between">
+                <div>
+                  <div class="text-[10px] text-emerald-400 font-bold uppercase tracking-wider flex items-center gap-1.5 flex-wrap">
+                    <span>💰 Aylık Tahmini Gelir</span>
+                    <span class="text-slate-400 text-[9px] bg-slate-800/90 px-1.5 py-0.5 rounded border border-slate-700">${chCountry}</span>
+                    <span class="text-[9px] px-1.5 py-0.5 rounded border ${chFormatBadgeClass}">${chFormatLabel}</span>
+                  </div>
+                  <div class="text-base font-extrabold text-emerald-300 mt-0.5">
+                    $${minUsd} - $${maxUsd}
+                    <span class="text-xs font-semibold text-slate-400">/ Ay</span>
+                  </div>
+                  <div class="text-[10px] text-slate-400">
+                    ≈ ₺${medianTry} / Ay
+                    ${ch.earnings?.tier1PotentialMonthly ? ` <span class="text-cyan-400 font-semibold">| 🇺🇸 ABD: $${ch.earnings.tier1PotentialMonthly.median}/Ay</span>` : ''}
+                  </div>
+                </div>
+                <button onclick="openChannelRevenueModal('${ch.channelId}')" title="Kazanç Simülatöründe İncele" class="px-2.5 py-2 bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 text-emerald-300 text-xs font-bold rounded-lg transition-all flex items-center gap-1 shadow-sm">
+                  <span>Hesapla</span> ↗
+                </button>
+              </div>
+
+              ${videoThumbsHtml}
+            </div>
+
+            <!-- Card Actions -->
+            <div class="grid grid-cols-2 gap-2.5 pt-2 border-t border-slate-800/60">
+              <button onclick="saveChannelObsidian('${ch.channelId}')" class="flex items-center justify-center space-x-1.5 py-2.5 px-3 rounded-xl bg-violet-600/20 border border-violet-500/40 text-violet-300 font-bold text-xs hover:bg-violet-600/30 transition-all">
+                <svg class="w-4 h-4 fill-violet-400" viewBox="0 0 24 24">
+                  <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
+                </svg>
+                <span>Obsidian'a Kaydet</span>
+              </button>
+              <a href="${ch.channelUrl || '#'}" target="_blank" class="flex items-center justify-center py-2.5 px-3 rounded-xl bg-slate-800 border border-slate-700/60 text-slate-200 font-semibold text-xs hover:bg-slate-700 transition-all">
+                Kanalı İncele ↗
+              </a>
+            </div>
+          `;
+          resultsGrid.appendChild(card);
+        });
+      } else {
+        // 🎬 VİDEO KARTLARI (Kırmızı Outlier & Yeşil İzlenme Kutucuklu Zengin Tasarım)
+        currentResults.forEach(v => {
+          if (!v || !v.videoId) return;
+          const card = document.createElement('div');
+          card.className = "group bg-[#111827] border border-slate-800 rounded-2xl overflow-hidden flex flex-col justify-between hover:border-sky-500/60 transition-all duration-300 shadow-xl hover:shadow-[0_15px_35px_rgba(2,132,199,0.18)] hover:-translate-y-1";
+
+          const isMegaOutlier = (v.outlierRatio || 0) >= 3 || (v.outlierBadge || '').includes('Mega') || (v.outlierBadge || '').includes('Patlama');
+          const outlierBadgeClass = isMegaOutlier 
+            ? 'bg-gradient-to-r from-rose-600 to-red-600 border-rose-400/60 shadow-rose-950/60' 
+            : 'bg-gradient-to-r from-amber-600 to-orange-600 border-amber-400/60 shadow-amber-950/60';
+
+          card.innerHTML = `
+            <div class="flex-1 flex flex-col">
+              <!-- Thumbnail Wrapper -->
+              <div class="relative aspect-video overflow-hidden bg-black">
+                <img src="${v.thumbnail}" referrerpolicy="no-referrer" onerror="this.onerror=null; this.src='https://i.ytimg.com/vi/${v.videoId}/hqdefault.jpg';" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" alt="${v.title}" />
+                
+                <!-- 🔴 SOL ÜST: Kırmızı Mega/Viral Outlier Kutucuğu -->
+                <div class="absolute top-2.5 left-2.5 z-10 px-3 py-1.5 rounded-lg text-xs font-black text-white ${outlierBadgeClass} border shadow-lg tracking-wide flex items-center gap-1">
+                  ${v.outlierBadge}
+                </div>
+
+                <!-- 🟢 SAĞ ÜST: Yeşil İzlenme Kutucuğu -->
+                <div class="absolute top-2.5 right-2.5 z-10 px-3 py-1.5 rounded-lg text-xs font-black text-white bg-gradient-to-r from-emerald-600 to-teal-600 border border-emerald-400/60 shadow-lg shadow-emerald-950/60 tracking-wide flex items-center gap-1">
+                  👁️ ${v.viewsFormatted} İzlenme
+                </div>
+
+                <!-- ⏱️ SAĞ ALT: Süre Kutucuğu -->
+                <div class="absolute bottom-2.5 right-2.5 z-10 px-2 py-0.5 rounded-md text-[11px] font-bold text-slate-100 bg-black/90 backdrop-blur-md border border-white/10 font-mono">
+                  ${v.durationText}
+                </div>
+
+                <!-- 🎬 SOL ALT: Format Kutucuğu -->
+                <div class="absolute bottom-2.5 left-2.5 z-10 px-2.5 py-1 rounded-md text-[11px] font-bold text-sky-200 bg-slate-950/85 backdrop-blur-md border border-slate-700/60">
+                  ${v.videoType}
+                </div>
+              </div>
+
+              <!-- Card Body -->
+              <div class="p-5 flex-1 flex flex-col justify-between">
+                <div>
+                  <h3 class="font-bold text-slate-100 text-sm line-clamp-2 mb-3 leading-snug group-hover:text-sky-300 transition-colors" title="${v.title}">
+                    ${v.title}
+                  </h3>
+
+                  <!-- 📊 Çok Sevilen Koyu İstatistik Kutusu (Stats Row) -->
+                  <div class="bg-[#0b1120]/90 border border-slate-800/90 rounded-xl p-3 mb-3.5 grid grid-cols-2 gap-2 shadow-inner">
+                    <div>
+                      <div class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Kanal Abonesi</div>
+                      <div class="text-sm font-extrabold text-white mt-0.5">${v.channelSubs}</div>
+                    </div>
+                    <div class="text-right">
+                      <div class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">İzlenme Hızı</div>
+                      <div class="text-xs font-bold text-rose-400 mt-0.5 truncate">${v.velocityBadge}</div>
+                    </div>
+                  </div>
+
+                  <!-- 👤 Kanal & Yayın Tarihi Satırı -->
+                  <div class="flex items-center justify-between text-xs text-slate-400 mb-2 pb-1">
+                    <span class="font-semibold text-slate-300 truncate max-w-[170px]" title="${v.channel}">👤 ${v.channel}</span>
+                    <span class="text-sky-400 font-medium whitespace-nowrap">📅 ${v.published}</span>
+                  </div>
+                </div>
+
+                <!-- 🔘 Butonlar -->
+                <div class="grid grid-cols-2 gap-2 pt-3 border-t border-slate-800/70 mt-2">
+                  <button onclick="saveVideoObsidian('${v.videoId}')" class="py-2.5 px-2 rounded-xl bg-violet-600/20 border border-violet-500/40 text-violet-300 font-bold text-xs hover:bg-violet-600/30 transition-all flex items-center justify-center gap-1.5 shadow-sm">
+                    🔬 Sahne & Kaydet
+                  </button>
+                  <a href="${v.url}" target="_blank" class="flex items-center justify-center py-2.5 px-2 rounded-xl bg-slate-800 border border-slate-700/80 text-slate-200 font-semibold text-xs hover:bg-slate-700 hover:text-white transition-all shadow-sm">
+                    YouTube'da Aç ↗
+                  </a>
+                </div>
+              </div>
+            </div>
+          `;
+          resultsGrid.appendChild(card);
+        });
+      }
+    }
+
+    async function saveVideoObsidian(videoId) {
+      const v = currentResults.find(x => x.videoId === videoId);
+      if (!v) return;
+      const btn = event.target;
+      const oldText = btn.innerHTML;
+      btn.innerHTML = "⏳ Analiz Ediliyor...";
+      btn.disabled = true;
+
+      try {
+        const res = await fetch('/api/save', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ video: v, category: currentCategory, keyword: currentKeyword })
+        });
+        const d = await res.json();
+        if (d.success) {
+          btn.innerHTML = "✅ Obsidian'a Kaydedildi!";
+          btn.className = "py-2.5 px-2 rounded-xl bg-emerald-600/20 border border-emerald-500/40 text-emerald-300 font-bold text-xs";
+          alert('Başarılı! ' + d.fileName + ' dosyası ve ' + d.sceneCount + ' sahnelik görsel storyboard oluşturuldu!');
+        } else {
+          btn.innerHTML = oldText;
+          btn.disabled = false;
+          alert("Hata: " + (d.error || 'Kaydedilemedi'));
+        }
+      } catch (e) {
+        btn.innerHTML = oldText;
+        btn.disabled = false;
+        alert("Bağlantı hatası: " + e.message);
+      }
+    }
+
+    async function saveChannelObsidian(channelId) {
+      const ch = currentResults.find(x => x.channelId === channelId);
+      if (!ch) return;
+      const btn = event.target;
+      const oldText = btn.innerHTML;
+      btn.innerHTML = "⏳ Kaydediliyor...";
+      btn.disabled = true;
+
+      try {
+        const res = await fetch('/api/save-channel', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ channel: ch, category: currentCategory, keyword: currentKeyword })
+        });
+        const d = await res.json();
+        if (d.success) {
+          btn.innerHTML = "✅ Kaydedildi!";
+          btn.className = "flex items-center justify-center space-x-1.5 py-2.5 px-3 rounded-xl bg-emerald-600/20 border border-emerald-500/40 text-emerald-300 font-bold text-xs";
+          alert('Başarılı! ' + ch.title + ' kanalının analiz karnesi 02 - Kanal Analizleri/' + d.fileName + ' olarak kaydedildi!');
+        } else {
+          btn.innerHTML = oldText;
+          btn.disabled = false;
+          alert("Hata: " + (d.error || 'Kaydedilemedi'));
+        }
+      } catch (e) {
+        btn.innerHTML = oldText;
+        btn.disabled = false;
+        alert("Bağlantı hatası: " + e.message);
+      }
+    }
+
+    // 💰 YOUTUBE GELİR & RPM SİMÜLATÖRÜ FONKSİYONLARI
+    let simState = {
+      views: 1000000,
+      format: 'shorts', // 'shorts' | 'long_form' | 'hybrid'
+      longRatio: 0.5,
+      niche: 'education',
+      tier: 'tier1'
+    };
+
+    function openRevenueCalculatorModal() {
+      const modal = document.getElementById('revenueModal');
+      if (!modal) return;
+      document.getElementById('revModalTitle').innerText = 'YouTube Gelir & RPM Simülatörü';
+      document.getElementById('revModalSubtitle').innerText = 'Aylık izlenme, niş CPM ve coğrafi kitle çarpanlarıyla gerçekçi kazanç projeksiyonu';
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      document.getElementById('simRangeViews').value = viewsToSliderIndex(simState.views);
+      document.getElementById('lblMonthlyViews').innerText = simState.views.toLocaleString('tr-TR') + ' izlenme';
+      runSimCalculation();
+    }
+
+    function openChannelRevenueModal(channelId) {
+      const ch = currentResults.find(x => x.channelId === channelId);
+      if (!ch) return openRevenueCalculatorModal();
+
+      const modal = document.getElementById('revenueModal');
+      if (!modal) return;
+
+      const cleanHandle = (ch.handle || '').replace(/^@+/, '');
+      document.getElementById('revModalTitle').innerText = `${ch.title} - Gelir Röntgeni`;
+      const nicheHint = ch.earnings?.nicheName ? ` • Niş: ${ch.earnings.nicheName}${ch.earnings.nicheSource === 'detected' ? ' (içerikten otomatik tespit)' : ' (arama kategorisi)'}` : '';
+      document.getElementById('revModalSubtitle').innerText = `@${cleanHandle} (${ch.country || 'Global'}) • ${ch.ageDays} günlük ivme${nicheHint} • Niş menüsünden değiştirebilirsiniz`;
+
+      const monthlyEst = ch.earnings?.monthlyViews || Math.round((ch.totalViews / Math.max(1, ch.ageDays)) * 30);
+      simState.views = Math.max(10000, monthlyEst);
+      simState.format = ch.channelFormat || ch.earnings?.contentType || 'shorts';
+      simState.longRatio = ch.longRatio != null ? ch.longRatio : (ch.earnings?.longRatio || 0.5);
+      simState.tier = ch.earnings?.geoTier || 'tier4';
+      simState.niche = ch.earnings?.niche || 'education';
+
+      document.getElementById('simRangeViews').value = viewsToSliderIndex(simState.views);
+      document.getElementById('lblMonthlyViews').innerText = simState.views.toLocaleString('tr-TR') + ' izlenme';
+      
+      const nicheSelect = document.getElementById('simNiche');
+      if (nicheSelect && simState.niche) nicheSelect.value = simState.niche;
+
+      const ratioSlider = document.getElementById('simRangeHybridRatio');
+      if (ratioSlider) {
+        const pct = Math.round(simState.longRatio * 100);
+        ratioSlider.value = pct;
+        updateHybridRatioLabel(pct);
+      }
+
+      setSimFormat(simState.format, false);
+      document.getElementById('simTier').value = simState.tier;
+
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      runSimCalculation();
+    }
+
+    function closeRevenueModal() {
+      const modal = document.getElementById('revenueModal');
+      if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      }
+    }
+
+    // Tam Hizalı İzlenme Slider Sistemi (100K'dan 10M'e 6 Nokta)
+    // 0 = 100K, 1 = 500K, 2 = 1M, 3 = 3M, 4 = 5M, 5 = 10M
+    const VIEW_SLIDER_POINTS = [
+      { idx: 0, views: 100000, label: "100.000 izlenme" },
+      { idx: 1, views: 500000, label: "500.000 izlenme" },
+      { idx: 2, views: 1000000, label: "1.000.000 izlenme" },
+      { idx: 3, views: 3000000, label: "3.000.000 izlenme" },
+      { idx: 4, views: 5000000, label: "5.000.000 izlenme" },
+      { idx: 5, views: 10000000, label: "10.000.000 izlenme" }
+    ];
+
+    // Gerçek izlenme değerini slider konumuna çevirir (iki nokta arasında doğrusal)
+    function viewsToSliderIndex(views) {
+      const v = parseFloat(views);
+      const pts = VIEW_SLIDER_POINTS;
+      if (v <= pts[0].views) return 0;
+      if (v >= pts[pts.length - 1].views) return pts.length - 1;
+      for (let i = 0; i < pts.length - 1; i++) {
+        if (v >= pts[i].views && v <= pts[i + 1].views) {
+          return i + (v - pts[i].views) / (pts[i + 1].views - pts[i].views);
+        }
+      }
+      return 2;
+    }
+
+    function onViewsSliderChange(sliderVal) {
+      const p = parseFloat(sliderVal);
+      if (p <= 0) {
+        simState.views = VIEW_SLIDER_POINTS[0].views;
+      } else if (p >= 5) {
+        simState.views = VIEW_SLIDER_POINTS[5].views;
+      } else {
+        const floorIdx = Math.floor(p);
+        const ceilIdx = Math.min(5, floorIdx + 1);
+        const ratio = p - floorIdx;
+        const v = VIEW_SLIDER_POINTS[floorIdx].views + ratio * (VIEW_SLIDER_POINTS[ceilIdx].views - VIEW_SLIDER_POINTS[floorIdx].views);
+        simState.views = Math.round(v / 25000) * 25000;
+      }
+
+      document.getElementById('lblMonthlyViews').innerText = simState.views.toLocaleString('tr-TR') + ' izlenme';
+      runSimCalculation();
+    }
+
+    function setViewsPreset(views, targetIndex) {
+      simState.views = views;
+      document.getElementById('simRangeViews').value = targetIndex;
+      document.getElementById('lblMonthlyViews').innerText = views.toLocaleString('tr-TR') + ' izlenme';
+      runSimCalculation();
+    }
+
+    function onHybridRatioChange(val) {
+      const longPct = parseInt(val, 10);
+      simState.longRatio = longPct / 100;
+      updateHybridRatioLabel(longPct);
+      runSimCalculation();
+    }
+
+    function updateHybridRatioLabel(longPct) {
+      const shortsPct = 100 - longPct;
+      const lbl = document.getElementById('lblHybridRatio');
+      if (lbl) lbl.innerText = `%${longPct} Uzun Video / %${shortsPct} Shorts`;
+    }
+
+    function setSimFormat(fmt, trigger = true) {
+      simState.format = fmt;
+      const btnShorts = document.getElementById('btnFormatShorts');
+      const btnLong = document.getElementById('btnFormatLong');
+      const btnHybrid = document.getElementById('btnFormatHybrid');
+      const hybridBox = document.getElementById('hybridRatioBox');
+
+      if (btnShorts) btnShorts.className = "py-2.5 px-2 rounded-xl border text-[11px] font-bold transition-all bg-slate-800/80 border-slate-700 text-slate-400 hover:text-white text-center";
+      if (btnLong) btnLong.className = "py-2.5 px-2 rounded-xl border text-[11px] font-bold transition-all bg-slate-800/80 border-slate-700 text-slate-400 hover:text-white text-center";
+      if (btnHybrid) btnHybrid.className = "py-2.5 px-2 rounded-xl border text-[11px] font-bold transition-all bg-slate-800/80 border-slate-700 text-slate-400 hover:text-white text-center";
+
+      if (fmt === 'shorts') {
+        if (btnShorts) btnShorts.className = "py-2.5 px-2 rounded-xl border text-[11px] font-bold transition-all bg-sky-500/20 border-sky-500 text-sky-200 text-center";
+        if (hybridBox) hybridBox.classList.add('hidden');
+      } else if (fmt === 'long_form') {
+        if (btnLong) btnLong.className = "py-2.5 px-2 rounded-xl border text-[11px] font-bold transition-all bg-sky-500/20 border-sky-500 text-sky-200 text-center";
+        if (hybridBox) hybridBox.classList.add('hidden');
+      } else {
+        if (btnHybrid) btnHybrid.className = "py-2.5 px-2 rounded-xl border text-[11px] font-bold transition-all bg-violet-500/25 border-violet-500 text-violet-200 text-center";
+        if (hybridBox) hybridBox.classList.remove('hidden');
+      }
+      if (trigger) runSimCalculation();
+    }
+
+    async function runSimCalculation() {
+      simState.niche = document.getElementById('simNiche').value;
+      simState.tier = document.getElementById('simTier').value;
+
+      try {
+        const url = `/api/calculate-earnings?views=${simState.views}&type=${simState.format}&longRatio=${simState.longRatio || 0.5}&niche=${simState.niche}&tier=${simState.tier}`;
+        const res = await fetch(url);
+        const d = await res.json();
+
+        document.getElementById('resRpm').innerText = `$${d.rpm.median}`;
+        document.getElementById('resDaily').innerText = `$${d.dailyEarningsUsd.median}`;
+        document.getElementById('resDailyTry').innerText = `≈ ₺${d.monthlyEarningsTry.median ? Math.round(d.monthlyEarningsTry.median / 30).toLocaleString('tr-TR') : 0} / gün`;
+
+        document.getElementById('resMonthly').innerText = `$${d.monthlyEarningsUsd.median.toLocaleString('tr-TR')}`;
+        document.getElementById('resMonthlyRange').innerText = `$${d.monthlyEarningsUsd.min} - $${d.monthlyEarningsUsd.max} (₺${d.monthlyEarningsTry.median.toLocaleString('tr-TR')})`;
+
+        document.getElementById('resYearly').innerText = `$${d.yearlyEarningsUsd.median.toLocaleString('tr-TR')}`;
+        document.getElementById('resYearlyTry').innerText = `≈ ₺${d.yearlyEarningsTry.median.toLocaleString('tr-TR')} / yıl`;
+
+        const arbText = document.getElementById('resArbitrageText');
+        if (d.tier1PotentialMonthly && d.tier1PotentialMonthly.median > d.monthlyEarningsUsd.median * 1.2) {
+          const diffX = (d.tier1PotentialMonthly.median / (d.monthlyEarningsUsd.median || 1)).toFixed(1);
+          arbText.innerHTML = `<strong>💡 Altın Arbitraj Fırsatı:</strong> Bu içerik şu an <em>${d.geoLabel}</em> kitlesine göre hesaplanıyor. Eğer aynı videoları <strong>ABD / İngiltere (Tier 1)</strong> kitlesine üretirseniz aylık kazancınız <strong>${diffX}x katına</strong> fırlayarak <span class="text-cyan-300 font-bold">$${d.tier1PotentialMonthly.median.toLocaleString('tr-TR')} / Ay</span> seviyesine çıkacaktır!`;
+        } else if (simState.format === 'hybrid') {
+          arbText.innerHTML = `<strong>🔀 Hibrit Model Gücü:</strong> Kanal hem Shorts viralliğiyle abone çekiyor hem de uzun videolarla yüksek AdSense geliri üretiyor. Ortalama harmanlanmış net RPM: <span class="text-cyan-300 font-bold">$${d.rpm.median}</span>.`;
+        } else if (simState.format === 'shorts') {
+          arbText.innerHTML = `<strong>💡 Format Stratejisi:</strong> Shorts havuzu yüksek izlenmelerde virallik sağlar. Aynı kitleye haftada 1-2 adet <strong>8+ dakikalık uzun video</strong> eklerseniz, uzun formun $3.00 - $8.00 RPM çarpanı sayesinde geliriniz 4-5 katına katlanabilir.`;
+        } else {
+          arbText.innerHTML = `<strong>🔥 Tier 1 Zirvesi:</strong> ABD ve Avrupa kitlesine hitap eden uzun metrajlı içerik modeli, YouTube'un en karlı AdSense modelidir. Sponsorluk ve affiliate gelirleri bu rakamın 2-3 katını getirebilir.`;
+        }
+      } catch (e) {
+        console.error('Simülasyon hesaplama hatası:', e);
+      }
+    }
+
+    // --- 🎬 AI BELGESEL STÜDYOSU JAVASCRIPT MOTORU ---
+    const studioState = {
+      aspect: '16:9',
+      isGenerating: false
+    };
+
+    const SCRIPT_PRESETS = {
+      elephant_hyena: {
+        genre: "wildlife",
+        title: "How a Baby Elephant Summoned Its Mother Against Hyenas – Without Making a Sound",
+        script: "Deep within the scorching African savannah, an isolated baby elephant faces an immediate existential threat. A ruthless clan of spotted hyenas begins closing their perimeter, waiting for the slightest hesitation. But this calf does not scream. Instead, it presses its foot firmly into the dry earth, sending low-frequency 20 Hertz infrasound vibrations rippling through the bedrock. Over ten miles away, a seven-ton matriarch feels the sub-acoustic shockwave through the sensitive mechanoreceptors in her pads. Within minutes, the ground trembles with the unstoppable fury of an approaching mother, shattering the hyenas' ambush."
+      },
+      flight19_mystery: {
+        genre: "mystery",
+        title: "The Bermuda Triangle: The Lost Flight 19 Mystery",
+        script: "On December 5th, 1945, five United States Navy Avenger bombers took off on a routine patrol mission over the Atlantic. Within two hours, the lead pilot radioed a chilling message: 'We cannot tell where west is. Everything is wrong, even the ocean looks abnormal.' Radio communications vanished into static. Minutes later, a rescue flying boat with thirteen crewmen was dispatched to find them—and it vanished into thin air too. Decades later, neither wreckage nor life jackets have ever been found."
+      },
+      space_blackhole: {
+        genre: "facts",
+        title: "What Actually Happens When You Cross an Event Horizon?",
+        script: "Imagine falling into a supermassive black hole. As you approach the event horizon, time for the outside universe speeds up infinitely, while your perception remains terrifyingly normal. The moment you cross the threshold of no return, spacetime is so intensely warped that the future leads in only one single direction: straight into the gravitational singularity. Matter is stretched into a microscopic string of atoms in a process known as spaghettification."
+      },
+      stoic_mindset: {
+        genre: "philosophy",
+        title: "Marcus Aurelius: The Armor of Inner Indifference",
+        script: "When you wake up in the morning, tell yourself: the people I deal with today will be meddling, ungrateful, arrogant, and dishonest. But they cannot hurt me, because they cannot taint my mind with evil. You have power over your mind, not outside events. Realize this unwavering truth, and you will discover immense inner fortress strength."
+      },
+      creepy_woods: {
+        genre: "horror",
+        title: "The Silent Forest: Why The Birds Suddenly Stopped Singing",
+        script: "Deep within the Black Forest, two experienced hikers noticed something unnerving. The wind didn't die down gradually—it halted in an instant. Not a single insect buzzed, and the birds went dead silent across the entire valley. In the wilderness, absolute silence isn't peace. It's the universal warning that an apex stalker has entered the grid."
+      },
+      lion_hunt: {
+        genre: "wildlife",
+        title: "The Midnight Ambush: How Lions Hunt Blinded by Darkness",
+        script: "Under the pitch-black canopy of the African night, apex predators step without a whisper. Their tapetum lucidum amplifies every stray photon of starlight, turning shadows into daylight. For an unsuspecting zebra herd, silence is their greatest enemy, until the synchronized trap springs shut in absolute darkness."
+      }
+    };
+
+    function openVideoStudioModal() {
+      const modal = document.getElementById('videoStudioModal');
+      if (modal) {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        modal.style.display = 'flex';
+        const scriptArea = document.getElementById('studioScriptInput');
+        if (!scriptArea.value || scriptArea.value.trim().length === 0) {
+          loadStudioPreset('elephant_hyena');
+        }
+      }
+    }
+
+    function closeVideoStudioModal() {
+      const modal = document.getElementById('videoStudioModal');
+      if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+        modal.style.display = 'none';
+      }
+    }
+
+    function loadStudioPreset(presetKey) {
+      const preset = SCRIPT_PRESETS[presetKey];
+      if (preset) {
+        document.getElementById('studioTitleInput').value = preset.title;
+        document.getElementById('studioScriptInput').value = preset.script;
+      }
+    }
+
+    function setStudioAspect(aspect) {
+      studioState.aspect = aspect;
+      const btn169 = document.getElementById('btnAspect169');
+      const btn916 = document.getElementById('btnAspect916');
+      if (aspect === '16:9') {
+        btn169.className = "flex-1 py-2 px-3 rounded-xl border border-purple-500 bg-purple-950/60 text-purple-200 text-xs font-bold transition-all shadow-md shadow-purple-950/40";
+        btn916.className = "flex-1 py-2 px-3 rounded-xl border border-slate-700 bg-slate-900/60 text-slate-400 hover:text-white text-xs font-semibold transition-all";
+      } else {
+        btn916.className = "flex-1 py-2 px-3 rounded-xl border border-purple-500 bg-purple-950/60 text-purple-200 text-xs font-bold transition-all shadow-md shadow-purple-950/40";
+        btn169.className = "flex-1 py-2 px-3 rounded-xl border border-slate-700 bg-slate-900/60 text-slate-400 hover:text-white text-xs font-semibold transition-all";
+      }
+    }
+
+    function onVideoSourceChange(source) {
+      const pexelsBox = document.getElementById('studioPexelsBox');
+      if (source === 'pexels') {
+        pexelsBox.classList.remove('hidden');
+      } else {
+        pexelsBox.classList.add('hidden');
+      }
+    }
+
+    async function startStudioGeneration() {
+      if (studioState.isGenerating) return;
+
+      const script = document.getElementById('studioScriptInput').value.trim();
+      if (!script) {
+        alert('Lütfen belgesel senaryo metnini girin!');
+        return;
+      }
+
+      const voiceName = document.getElementById('studioVoiceSelect').value;
+      const bgmType = document.getElementById('studioBgmSelect').value;
+      const bgmVolume = parseFloat(document.getElementById('studioBgmVolume').value || '0.15');
+      const subtitleEnabled = document.getElementById('studioSubtitleCheck').checked;
+      const videoSource = document.getElementById('studioSourceSelect').value;
+      const pexelsApiKey = document.getElementById('studioPexelsKey').value.trim();
+
+      studioState.isGenerating = true;
+      const btn = document.getElementById('btnStartStudioGen');
+      btn.disabled = true;
+      btn.innerHTML = `<span class="animate-spin mr-2">⚙️</span> Belgesel Üretiliyor... (Lütfen Bekleyin)`;
+
+      // Show Progress Bar
+      const progressBox = document.getElementById('studioProgressBox');
+      progressBox.classList.remove('hidden');
+      const logArea = document.getElementById('studioLogConsole');
+      logArea.innerText = `[${new Date().toLocaleTimeString()}] Video üretim boru hattı başlatıldı...\n[Engine] Edge TTS & FFmpeg devrede.\n[Info] Senaryo seslendiriliyor ve dinamik altyazılar işleniyor...`;
+
+      // Hide player during new gen
+      document.getElementById('studioResultBox').classList.add('hidden');
+
+      try {
+        const response = await fetch('/api/generate-documentary', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            script,
+            aspect: studioState.aspect,
+            voiceName,
+            bgmType,
+            bgmVolume,
+            subtitleEnabled,
+            videoSource,
+            pexelsApiKey
+          })
+        });
+
+        const data = await response.json();
+
+        if (data.success && data.videoUrl) {
+          logArea.innerText += `\n[${new Date().toLocaleTimeString()}] ✅ BAŞARILI! Belgesel başarıyla oluşturuldu.\n[Task ID] ${data.taskId}\n[Video URL] ${data.videoUrl}`;
+          
+          // Show Result
+          const resultBox = document.getElementById('studioResultBox');
+          resultBox.classList.remove('hidden');
+          const player = document.getElementById('studioVideoPlayer');
+          player.src = data.videoUrl + '?t=' + Date.now();
+          player.load();
+          player.play().catch(() => {});
+
+          const downloadBtn = document.getElementById('btnDownloadStudioVideo');
+          downloadBtn.href = data.videoUrl;
+          downloadBtn.setAttribute('download', `predator_doc_${data.taskId}.mp4`);
+
+          // Scroll to result
+          resultBox.scrollIntoView({ behavior: 'smooth' });
+          refreshVideoCount();
+        } else {
+          logArea.innerText += `\n[HATA] Üretim başarısız: ${data.error || 'Bilinmeyen hata'}\n${data.stderr || ''}`;
+          alert(`Video üretiminde hata: ${data.error || 'Bilinmeyen hata'}`);
+        }
+      } catch (err) {
+        logArea.innerText += `\n[AĞ HATASI] ${err.message}`;
+        alert(`Sunucu iletişim hatası: ${err.message}`);
+      } finally {
+        studioState.isGenerating = false;
+        btn.disabled = false;
+        btn.innerHTML = `<span>🚀 Yeni Belgesel Üret</span>`;
+      }
+    }
+
+    // ==========================================
+    // 📁 VİDEO KÜTÜPHANESİ & DEPOLAMA YÖNETİCİSİ
+    // ==========================================
+    let cachedLibraryVideos = [];
+
+    async function refreshVideoCount() {
+      try {
+        const res = await fetch('/api/videos');
+        const data = await res.json();
+        if (data.success && data.videos) {
+          const validCount = data.videos.filter(v => v.exists).length;
+          const badge = document.getElementById('headerVideoCountBadge');
+          if (badge) badge.innerText = validCount;
+        }
+      } catch (e) {
+        console.warn('Video sayısı alınamadı:', e);
+      }
+    }
+
+    function openVideoLibraryModal() {
+      const modal = document.getElementById('videoLibraryModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      loadVideoLibrary();
+    }
+
+    function closeVideoLibraryModal() {
+      const modal = document.getElementById('videoLibraryModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+      const previewPlayer = document.getElementById('libPreviewPlayer');
+      if (previewPlayer) {
+        previewPlayer.pause();
+        previewPlayer.src = '';
+      }
+    }
+
+    async function loadVideoLibrary() {
+      const listContainer = document.getElementById('libVideoList');
+      const countEl = document.getElementById('libTotalCount');
+      const sizeEl = document.getElementById('libTotalSize');
+      const brokenCountEl = document.getElementById('libBrokenCount');
+
+      listContainer.innerHTML = `
+        <div class="col-span-full py-16 text-center text-slate-400 flex flex-col items-center justify-center space-y-3">
+          <div class="w-10 h-10 border-4 border-blue-500/20 border-t-blue-500 rounded-full animate-spin"></div>
+          <span class="text-xs font-semibold">Tüm üretilen videolar taranıyor...</span>
+        </div>
+      `;
+
+      try {
+        const res = await fetch('/api/videos');
+        const data = await res.json();
+
+        if (!data.success) {
+          listContainer.innerHTML = `<div class="col-span-full py-10 text-center text-rose-400 text-xs">Hata: ${data.error || 'Videolar alınamadı'}</div>`;
+          return;
+        }
+
+        cachedLibraryVideos = data.videos || [];
+        const completedVideos = cachedLibraryVideos.filter(v => v.exists);
+        const brokenVideos = cachedLibraryVideos.filter(v => !v.exists || v.sizeMb < 0.2);
+
+        countEl.innerText = `${completedVideos.length} Tamamlanan Video`;
+        sizeEl.innerText = `${data.totalSizeMb || 0} MB Toplam Depolama`;
+        brokenCountEl.innerText = brokenVideos.length > 0 ? `${brokenVideos.length} Boş/Hatalı Taslak` : `0 Hatalı`;
+
+        const badge = document.getElementById('headerVideoCountBadge');
+        if (badge) badge.innerText = completedVideos.length;
+
+        if (cachedLibraryVideos.length === 0) {
+          listContainer.innerHTML = `
+            <div class="col-span-full py-16 text-center text-slate-500 flex flex-col items-center justify-center space-y-2">
+              <span class="text-3xl">📭</span>
+              <span class="text-sm font-bold text-slate-400">Henüz kayıtlı bir video bulunmuyor</span>
+              <p class="text-xs text-slate-500">AI Belgesel Stüdyosu'ndan ilk videonuzu üreterek başlayabilirsiniz.</p>
+            </div>
+          `;
+          return;
+        }
+
+        listContainer.innerHTML = cachedLibraryVideos.map(video => {
+          const isCompleted = video.exists && video.sizeMb >= 0.2;
+          const statusBadge = isCompleted 
+            ? `<span class="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-[10px] px-2 py-0.5 rounded-full font-bold">✅ Hazır (${video.sizeMb} MB)</span>`
+            : `<span class="bg-rose-500/20 text-rose-400 border border-rose-500/30 text-[10px] px-2 py-0.5 rounded-full font-bold">⚠️ Boş / Çöp (${video.sizeMb} MB)</span>`;
+          
+          const scriptPreview = video.script 
+            ? (video.script.length > 120 ? video.script.substring(0, 120) + '...' : video.script)
+            : 'Özel senaryo metni bulunmuyor';
+
+          return `
+            <div class="p-4 rounded-2xl bg-[#070b14] border ${isCompleted ? 'border-slate-800 hover:border-blue-500/50' : 'border-rose-950/60 bg-rose-950/10'} transition-all flex flex-col justify-between space-y-3 shadow-lg group">
+              <div class="space-y-2">
+                <div class="flex items-center justify-between">
+                  ${statusBadge}
+                  <span class="text-[10px] text-slate-400 font-mono">${video.createdAt ? new Date(video.createdAt).toLocaleString('tr-TR') : ''}</span>
+                </div>
+                <div>
+                  <div class="text-xs font-bold text-white line-clamp-1 flex items-center gap-1.5">
+                    <span>🎬</span> Task: <span class="font-mono text-slate-300">${video.taskId.substring(0, 8)}...</span>
+                  </div>
+                  <p class="text-[11px] text-slate-400 line-clamp-2 mt-1 leading-relaxed italic">"${scriptPreview}"</p>
+                </div>
+                <div class="flex items-center gap-2 text-[10px] text-slate-400">
+                  <span class="bg-slate-800/80 px-2 py-0.5 rounded">📐 ${video.aspect || '16:9'}</span>
+                  <span class="bg-slate-800/80 px-2 py-0.5 rounded">🎙️ ${video.voice || 'Edge TTS'}</span>
+                </div>
+              </div>
+
+              <div class="pt-2 border-t border-slate-800/80 flex items-center justify-between gap-2">
+                ${isCompleted ? `
+                  <button onclick="previewLibraryVideo('${video.videoUrl}', '${video.taskId}', false)" class="flex-1 py-1.5 px-3 rounded-xl bg-blue-600/30 hover:bg-blue-600/50 text-blue-200 border border-blue-500/40 text-xs font-bold transition-all flex items-center justify-center gap-1">
+                    <span>▶️</span> İzle
+                  </button>
+                  <a href="${video.videoUrl}" download="video_${video.taskId}.mp4" class="py-1.5 px-3 rounded-xl bg-emerald-600/30 hover:bg-emerald-600/50 text-emerald-200 border border-emerald-500/40 text-xs font-bold transition-all flex items-center justify-center" title="MP4 İndir">
+                    <span>⬇️</span>
+                  </a>
+                ` : `
+                  <span class="text-[10px] text-rose-400/80 italic">Video render edilmemiş (Taslak)</span>
+                `}
+                <button onclick="deleteVideoItem('${video.taskId}')" class="py-1.5 px-3 rounded-xl bg-rose-600/20 hover:bg-rose-600/40 text-rose-300 border border-rose-500/30 text-xs font-bold transition-all flex items-center justify-center" title="Disk'ten Kalıcı Olarak Sil">
+                  <span>🗑️ Sil</span>
+                </button>
+              </div>
+            </div>
+          `;
+        }).join('');
+
+      } catch (err) {
+        listContainer.innerHTML = `<div class="col-span-full py-10 text-center text-rose-400 text-xs">Sunucu bağlantı hatası: ${err.message}</div>`;
+      }
+    }
+
+    function previewLibraryVideo(url, taskId) {
+      const container = document.getElementById('libPreviewContainer');
+      const player = document.getElementById('libPreviewPlayer');
+      const title = document.getElementById('libPreviewTitle');
+      
+      container.classList.remove('hidden');
+      title.innerText = `Oynatılıyor: Task ${taskId}`;
+      player.src = url;
+      player.load();
+      player.play().catch(() => {});
+      container.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function closeLibraryPreview() {
+      const container = document.getElementById('libPreviewContainer');
+      const player = document.getElementById('libPreviewPlayer');
+      container.classList.add('hidden');
+      player.pause();
+      player.src = '';
+    }
+
+    async function deleteVideoItem(taskId) {
+      if (!confirm(`Bu videoyu ve ilişkili tüm geçici ses/altyazı dosyalarını diskten kalıcı olarak silmek istediğinize emin misiniz?`)) {
+        return;
+      }
+      try {
+        const res = await fetch('/api/delete-video', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ taskId })
+        });
+        const data = await res.json();
+        if (data.success) {
+          loadVideoLibrary();
+        } else {
+          alert(`Silinemedi: ${data.error || 'Bilinmeyen hata'}`);
+        }
+      } catch (err) {
+        alert(`Silme isteği başarısız: ${err.message}`);
+      }
+    }
+
+    async function cleanBrokenVideos() {
+      if (!confirm(`Tamamlanmamış, 0 MB veya video dosyası bulunmayan çöp/taslak klasörlerin hepsi diskten temizlensin mi?`)) {
+        return;
+      }
+      try {
+        const res = await fetch('/api/delete-broken-videos', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        });
+        const data = await res.json();
+        if (data.success) {
+          alert(`Temizlik tamamlandı! ${data.deletedCount} adet çöp/taslak klasör silindi.`);
+          loadVideoLibrary();
+        } else {
+          alert(`Temizlik hatası: ${data.error || 'Bilinmeyen hata'}`);
+        }
+      } catch (err) {
+        alert(`Temizlik isteği başarısız: ${err.message}`);
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      loadNiches().then(() => {
+        executeRadar();
+        refreshVideoCount();
+      });
+    });
+  </script>
+
+  <!-- 💰 YOUTUBE GELİR & RPM SİMÜLATÖRÜ MODAL -->
+  <div id="revenueModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden items-center justify-center p-4">
+    <div class="bg-[#0e1424] border border-slate-700/80 rounded-3xl max-w-2xl w-full p-6 shadow-2xl text-slate-100 max-h-[90vh] overflow-y-auto space-y-5 animate-in fade-in zoom-in-95 duration-200">
+      
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between pb-4 border-b border-slate-800">
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center text-xl shadow-lg shadow-emerald-500/20">
+            💰
+          </div>
+          <div>
+            <h2 class="text-lg font-bold text-white flex items-center gap-2">
+              <span id="revModalTitle">YouTube Gelir & RPM Simülatörü</span>
+              <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-950 border border-emerald-800 text-emerald-300 font-semibold">GitHub Modeli</span>
+            </h2>
+            <p id="revModalSubtitle" class="text-xs text-slate-400">Aylık izlenme, niş CPM ve coğrafi kitle çarpanlarıyla gerçekçi kazanç projeksiyonu</p>
+          </div>
+        </div>
+        <button onclick="closeRevenueModal()" class="w-8 h-8 rounded-full bg-slate-800/80 hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-white transition-all text-sm font-bold">
+          ✕
+        </button>
+      </div>
+
+      <!-- Controls Form Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        
+        <!-- Aylık İzlenme -->
+        <div class="md:col-span-2 space-y-1.5 bg-[#070b14] p-3.5 rounded-2xl border border-slate-800/80">
+          <div class="flex items-center justify-between">
+            <label class="text-xs font-bold text-slate-300 uppercase tracking-wider">📈 Aylık Tahmini İzlenme</label>
+            <span id="lblMonthlyViews" class="text-sm font-extrabold text-cyan-400">1.000.000 izlenme</span>
+          </div>
+          <input type="range" id="simRangeViews" min="0" max="5" step="0.05" value="2" class="w-full accent-cyan-400 cursor-pointer" oninput="onViewsSliderChange(this.value)" />
+          <div class="flex items-center justify-between gap-1 text-[10px] text-slate-400 pt-1">
+            <button onclick="setViewsPreset(100000, 0)" class="w-12 py-1 text-center rounded bg-slate-800 hover:bg-slate-700 hover:text-white transition-all font-semibold">100K</button>
+            <button onclick="setViewsPreset(500000, 1)" class="w-12 py-1 text-center rounded bg-slate-800 hover:bg-slate-700 hover:text-white transition-all font-semibold">500K</button>
+            <button onclick="setViewsPreset(1000000, 2)" class="w-12 py-1 text-center rounded bg-slate-800 hover:bg-slate-700 hover:text-white transition-all font-semibold">1M</button>
+            <button onclick="setViewsPreset(3000000, 3)" class="w-12 py-1 text-center rounded bg-slate-800 hover:bg-slate-700 hover:text-white transition-all font-semibold">3M</button>
+            <button onclick="setViewsPreset(5000000, 4)" class="w-12 py-1 text-center rounded bg-slate-800 hover:bg-slate-700 hover:text-white transition-all font-semibold">5M</button>
+            <button onclick="setViewsPreset(10000000, 5)" class="w-12 py-1 text-center rounded bg-slate-800 hover:bg-slate-700 hover:text-white transition-all font-semibold">10M</button>
+          </div>
+        </div>
+
+        <!-- Format Seçimi (Shorts vs Uzun Form vs Hibrit) -->
+        <div class="space-y-1.5">
+          <label class="text-xs font-bold text-slate-300 uppercase tracking-wider">🎬 Video Formatı</label>
+          <div class="grid grid-cols-3 gap-1.5">
+            <button id="btnFormatShorts" onclick="setSimFormat('shorts')" class="py-2.5 px-2 rounded-xl border text-[11px] font-bold transition-all bg-sky-500/20 border-sky-500 text-sky-200 text-center">
+              ⚡ Shorts
+            </button>
+            <button id="btnFormatLong" onclick="setSimFormat('long_form')" class="py-2.5 px-2 rounded-xl border text-[11px] font-bold transition-all bg-slate-800/80 border-slate-700 text-slate-400 hover:text-white text-center">
+              🎬 Uzun (>8 Dk)
+            </button>
+            <button id="btnFormatHybrid" onclick="setSimFormat('hybrid')" class="py-2.5 px-2 rounded-xl border text-[11px] font-bold transition-all bg-slate-800/80 border-slate-700 text-slate-400 hover:text-white text-center">
+              🔀 Hibrit Karma
+            </button>
+          </div>
+        </div>
+
+        <!-- Hibrit Oran Ayarı (Sadece Hibrit modda görünür) -->
+        <div id="hybridRatioBox" class="hidden md:col-span-2 bg-[#070b14] p-3 rounded-2xl border border-violet-500/30 space-y-1.5">
+          <div class="flex items-center justify-between text-xs font-bold">
+            <span class="text-violet-300">🔀 Hibrit İzlenme Dağılımı</span>
+            <span id="lblHybridRatio" class="text-cyan-300 font-extrabold">%50 Uzun Video / %50 Shorts</span>
+          </div>
+          <input type="range" id="simRangeHybridRatio" min="10" max="90" step="5" value="50" class="w-full accent-violet-400 cursor-pointer" oninput="onHybridRatioChange(this.value)" />
+          <div class="flex items-center justify-between text-[10px] text-slate-400">
+            <span>⚡ Shorts Ağırlıklı (%90 Shorts)</span>
+            <span>Eşit (%50/%50)</span>
+            <span>🎬 Uzun Video Ağırlıklı (%90 Uzun)</span>
+          </div>
+        </div>
+
+        <!-- Kategori / Niş Seçimi -->
+        <div class="space-y-1.5">
+          <label class="text-xs font-bold text-slate-300 uppercase tracking-wider">🎯 İçerik Kategorisi</label>
+          <select id="simNiche" onchange="runSimCalculation()" class="w-full bg-[#070b14] border border-slate-700/80 rounded-xl px-3 py-2.5 text-xs text-slate-100 focus:outline-none focus:border-cyan-500">
+            <option value="education" selected>🏛️ Tarih, Bilim & Gizem (CPM ~$5.5)</option>
+            <option value="tech">🤖 Teknoloji & Yapay Zeka (CPM ~$7.8)</option>
+            <option value="finance">💰 Finans & Yatırım (CPM ~$12.5)</option>
+            <option value="crypto">🪙 Kripto & Borsa (CPM ~$15.0)</option>
+            <option value="business">💼 Girişimcilik & İş (CPM ~$10.0)</option>
+            <option value="horror">👁️ Korku & Paranormal (CPM ~$2.5)</option>
+            <option value="gaming">🎮 Oyun & Espor (CPM ~$2.1)</option>
+            <option value="entertainment">🎭 Eğlence & Komedi (CPM ~$1.8)</option>
+            <option value="sports">🏂 Spor & Ekstrem Sporlar (CPM ~$3.6)</option>
+            <option value="automotive">🚗 Otomobil & Araç (CPM ~$5.2)</option>
+            <option value="animals">🦁 Hayvanlar & Doğa (CPM ~$2.8)</option>
+            <option value="food">🍳 Yemek & Mutfak (CPM ~$3.8)</option>
+            <option value="travel">✈️ Seyahat & Keşif (CPM ~$4.5)</option>
+            <option value="music">🎵 Müzik & Sanat (CPM ~$1.4)</option>
+            <option value="kids">🧸 Çocuk & Aile (CPM ~$1.8)</option>
+            <option value="lifestyle">☕ Yaşam Tarzı & Vlog (CPM ~$3.2)</option>
+            <option value="general">🌍 Genel Niş (CPM ~$3.5)</option>
+          </select>
+        </div>
+
+        <!-- Kitle Coğrafyası (Tier Seçimi) -->
+        <div class="md:col-span-2 space-y-1.5">
+          <label class="text-xs font-bold text-slate-300 uppercase tracking-wider">🌍 Hedef Kitle Ülke Havuzu</label>
+          <select id="simTier" onchange="runSimCalculation()" class="w-full bg-[#070b14] border border-slate-700/80 rounded-xl px-3 py-2.5 text-xs text-slate-100 focus:outline-none focus:border-cyan-500">
+            <option value="tier1" selected>🇺🇸 Tier 1 (ABD / İngiltere / Kanada / Almanya) - Çarpan: 1.0x</option>
+            <option value="tier2">🇦🇺 Tier 2 (Avustralya / Hollanda / İskandinavya) - Çarpan: 0.85x</option>
+            <option value="tier3">🇯🇵 Tier 3 (Japonya / G.Kore / G.Avrupa) - Çarpan: 0.70x</option>
+            <option value="tier4">🇹🇷 Tier 4 (Türkiye / Global Karışık / Latin Amerika) - Çarpan: 0.50x</option>
+            <option value="tier5">🇮🇳 Tier 5 (Hindistan / Pakistan / Güneydoğu Asya) - Çarpan: 0.25x</option>
+          </select>
+        </div>
+
+      </div>
+
+      <!-- Live Calculation Results Grid -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
+        <div class="bg-[#070b14] border border-slate-800 p-3.5 rounded-2xl text-center">
+          <div class="text-[10px] text-slate-400 font-bold uppercase">Tahmini RPM</div>
+          <div id="resRpm" class="text-lg font-black text-cyan-400 mt-1">$0.11</div>
+          <div class="text-[9px] text-slate-500">1.000 izlenme net</div>
+        </div>
+        <div class="bg-[#070b14] border border-slate-800 p-3.5 rounded-2xl text-center">
+          <div class="text-[10px] text-slate-400 font-bold uppercase">Günlük Gelir</div>
+          <div id="resDaily" class="text-lg font-black text-emerald-400 mt-1">$3.5</div>
+          <div id="resDailyTry" class="text-[9px] text-slate-400">≈ ₺120 / gün</div>
+        </div>
+        <div class="bg-gradient-to-b from-emerald-950/40 to-[#070b14] border border-emerald-500/40 p-3.5 rounded-2xl text-center col-span-2 sm:col-span-1 shadow-lg shadow-emerald-950/20">
+          <div class="text-[10px] text-emerald-400 font-bold uppercase">Aylık Medyan</div>
+          <div id="resMonthly" class="text-xl font-extrabold text-emerald-300 mt-0.5">$105</div>
+          <div id="resMonthlyRange" class="text-[9px] text-slate-300">$60 - $160 / Ay</div>
+        </div>
+        <div class="bg-[#070b14] border border-slate-800 p-3.5 rounded-2xl text-center col-span-2 sm:col-span-1">
+          <div class="text-[10px] text-slate-400 font-bold uppercase">Yıllık Potansiyel</div>
+          <div id="resYearly" class="text-lg font-black text-white mt-1">$1.260</div>
+          <div id="resYearlyTry" class="text-[9px] text-slate-400">≈ ₺43.470 / yıl</div>
+        </div>
+      </div>
+
+      <!-- Arbitrage Insight Banner -->
+      <div id="resArbitrageBox" class="p-3.5 rounded-2xl bg-gradient-to-r from-sky-950/40 via-indigo-950/30 to-purple-950/20 border border-sky-500/30 text-xs flex items-center gap-3">
+        <div class="text-2xl flex-shrink-0">🚀</div>
+        <div id="resArbitrageText" class="text-slate-300 leading-relaxed">
+          Yükleniyor...
+        </div>
+      </div>
+
+      <!-- Footer Buttons -->
+      <div class="flex items-center justify-end space-x-3 pt-3 border-t border-slate-800">
+        <button onclick="closeRevenueModal()" class="px-5 py-2.5 rounded-xl bg-slate-800 text-slate-300 hover:text-white text-xs font-bold transition-all">
+          Kapat
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 🎬 AI VİDEO STÜDYOSU MODAL (MONEYPRINTERTURBO & STITCH ENGINE) -->
+  <div id="videoStudioModal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 hidden items-center justify-center p-3 sm:p-5">
+    <div class="bg-[#0b101e] border border-purple-500/40 rounded-3xl max-w-4xl w-full p-5 sm:p-7 shadow-2xl text-slate-100 max-h-[92vh] overflow-y-auto space-y-5 animate-in fade-in zoom-in-95 duration-200 custom-scrollbar">
+      
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between pb-4 border-b border-slate-800">
+        <div class="flex items-center space-x-3.5">
+          <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-purple-600 to-pink-500 flex items-center justify-center text-2xl shadow-lg shadow-purple-500/25">
+            🎬
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h2 class="text-lg font-black text-white">AI Video Stüdyosu</h2>
+              <span class="text-[10px] px-2.5 py-0.5 rounded-full bg-purple-950/80 border border-purple-500/50 text-purple-300 font-bold uppercase tracking-wider">Multi-Genre Video Motoru</span>
+              <span class="text-[10px] px-2 py-0.5 rounded-full bg-cyan-950/80 border border-cyan-500/40 text-cyan-300 font-semibold">Stitch UI</span>
+            </div>
+            <p class="text-xs text-slate-400 mt-0.5">Belgesel, Gizem, Bilim & Uzay, Felsefe, Korku ve İlginç Bilgiler videoları üretin (Edge TTS + FFmpeg + Otomatik Altyazı)</p>
+          </div>
+        </div>
+        <button onclick="closeVideoStudioModal()" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-white transition-all text-sm font-bold">
+          ✕
+        </button>
+      </div>
+
+      <!-- Presets Selector -->
+      <div class="bg-[#070b14] p-3.5 rounded-2xl border border-slate-800/80 space-y-2">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold text-slate-300 uppercase tracking-wider">🎯 Hazır Video Format & Senaryo Şablonları</span>
+          <span class="text-[11px] text-purple-400">Tek tıkla türe göre senaryo yükleyin</span>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
+          <button onclick="loadStudioPreset('elephant_hyena')" class="p-2.5 rounded-xl border border-purple-500/40 bg-purple-950/30 hover:bg-purple-900/40 text-left transition-all group">
+            <div class="text-xs font-bold text-purple-200 group-hover:text-white flex items-center gap-1">
+              <span>🐘</span> Vahşi Yaşam
+            </div>
+            <div class="text-[10px] text-slate-400 truncate mt-0.5">Yavru Fil & İnfrases</div>
+          </button>
+          <button onclick="loadStudioPreset('flight19_mystery')" class="p-2.5 rounded-xl border border-slate-800 bg-slate-900/50 hover:bg-slate-800/60 text-left transition-all group">
+            <div class="text-xs font-bold text-slate-300 group-hover:text-white flex items-center gap-1">
+              <span>✈️</span> Gizem & Paranormal
+            </div>
+            <div class="text-[10px] text-slate-400 truncate mt-0.5">Bermuda Uçuş 19</div>
+          </button>
+          <button onclick="loadStudioPreset('space_blackhole')" class="p-2.5 rounded-xl border border-slate-800 bg-slate-900/50 hover:bg-slate-800/60 text-left transition-all group">
+            <div class="text-xs font-bold text-slate-300 group-hover:text-white flex items-center gap-1">
+              <span>🌌</span> Bilim & Uzay
+            </div>
+            <div class="text-[10px] text-slate-400 truncate mt-0.5">Karadelik Olay Ufku</div>
+          </button>
+          <button onclick="loadStudioPreset('stoic_mindset')" class="p-2.5 rounded-xl border border-slate-800 bg-slate-900/50 hover:bg-slate-800/60 text-left transition-all group">
+            <div class="text-xs font-bold text-slate-300 group-hover:text-white flex items-center gap-1">
+              <span>🏛️</span> Felsefe & Stoacılık
+            </div>
+            <div class="text-[10px] text-slate-400 truncate mt-0.5">Marcus Aurelius Zihni</div>
+          </button>
+          <button onclick="loadStudioPreset('creepy_woods')" class="p-2.5 rounded-xl border border-slate-800 bg-slate-900/50 hover:bg-slate-800/60 text-left transition-all group">
+            <div class="text-xs font-bold text-slate-300 group-hover:text-white flex items-center gap-1">
+              <span>🌲</span> Korku Hikayeleri
+            </div>
+            <div class="text-[10px] text-slate-400 truncate mt-0.5">Sessizleşen Orman</div>
+          </button>
+        </div>
+      </div>
+
+      <!-- Title & Script Box -->
+      <div class="space-y-3">
+        <div class="space-y-1">
+          <label class="text-xs font-bold text-slate-300 uppercase tracking-wider">📌 Video Başlığı</label>
+          <input id="studioTitleInput" type="text" value="How a Baby Elephant Summoned Its Mother Against Hyenas – Without Making a Sound" class="w-full bg-[#070b14] border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-xs text-slate-100 font-semibold focus:outline-none focus:border-purple-500 transition-colors" />
+        </div>
+
+        <div class="space-y-1">
+          <div class="flex items-center justify-between">
+            <label class="text-xs font-bold text-slate-300 uppercase tracking-wider">🎙️ Anlatıcı Metni (Voiceover Script)</label>
+            <span class="text-[10px] text-slate-500">İngilizce veya Türkçe herhangi bir konu metnini doğrudan yapıştırabilirsiniz</span>
+          </div>
+          <textarea id="studioScriptInput" rows="5" class="w-full bg-[#070b14] border border-slate-700/80 rounded-xl p-3.5 text-xs text-slate-200 leading-relaxed focus:outline-none focus:border-purple-500 transition-colors resize-none">Deep within the scorching African savannah, an isolated baby elephant faces an immediate existential threat. A ruthless clan of spotted hyenas begins closing their perimeter, waiting for the slightest hesitation. But this calf does not scream. Instead, it presses its foot firmly into the dry earth, sending low-frequency 20 Hertz infrasound vibrations rippling through the bedrock. Over ten miles away, a seven-ton matriarch feels the sub-acoustic shockwave through the sensitive mechanoreceptors in her pads. Within minutes, the ground trembles with the unstoppable fury of an approaching mother, shattering the hyenas' ambush.</textarea>
+        </div>
+      </div>
+
+      <!-- Controls Grid -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 bg-[#070b14] p-4 rounded-2xl border border-slate-800">
+        
+        <!-- Format Seçimi -->
+        <div class="space-y-1.5">
+          <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">📐 Format / Oran</label>
+          <div class="flex items-center gap-1.5">
+            <button id="btnAspect169" onclick="setStudioAspect('16:9')" class="flex-1 py-2 px-3 rounded-xl border border-purple-500 bg-purple-950/60 text-purple-200 text-xs font-bold transition-all shadow-md shadow-purple-950/40">
+              🎬 16:9 Yatay
+            </button>
+            <button id="btnAspect916" onclick="setStudioAspect('9:16')" class="flex-1 py-2 px-3 rounded-xl border border-slate-700 bg-slate-900/60 text-slate-400 hover:text-white text-xs font-semibold transition-all">
+              ⚡ 9:16 Shorts
+            </button>
+          </div>
+        </div>
+
+        <!-- Seslendirmen -->
+        <div class="space-y-1.5">
+          <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">🎙️ Anlatıcı Sesi (Edge TTS)</label>
+          <select id="studioVoiceSelect" class="w-full bg-[#0b101e] border border-slate-700 rounded-xl px-2.5 py-2 text-xs text-slate-100 focus:outline-none focus:border-purple-500">
+            <option value="en-US-ChristopherNeural" selected>🎙️ Christopher (Derin/Gizem/Belgesel Tonu)</option>
+            <option value="en-US-GuyNeural">🎙️ Guy (Tok & Karizmatik Anlatıcı)</option>
+            <option value="en-US-RyanMultilingualNeural">🎙️ Ryan (Doğal Hikaye Anlatımı)</option>
+            <option value="tr-TR-AhmetNeural">🎙️ Ahmet (Türkçe Karizmatik Ses)</option>
+          </select>
+        </div>
+
+        <!-- Müzik Ambiyansı -->
+        <div class="space-y-1.5">
+          <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">🎵 Arka Plan Ambiyansı</label>
+          <select id="studioBgmSelect" class="w-full bg-[#0b101e] border border-slate-700 rounded-xl px-2.5 py-2 text-xs text-slate-100 focus:outline-none focus:border-purple-500">
+            <option value="random" selected>🎵 Rastgele Sinematik / Gerilim Müziği</option>
+            <option value="none">🔇 Müziksiz (Sadece Seslendirme)</option>
+          </select>
+          <input type="hidden" id="studioBgmVolume" value="0.15" />
+        </div>
+
+        <!-- Video Görsel Kaynağı -->
+        <div class="space-y-1.5">
+          <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">🎞️ Görsel Kaynağı</label>
+          <select id="studioSourceSelect" onchange="onVideoSourceChange(this.value)" class="w-full bg-[#0b101e] border border-slate-700 rounded-xl px-2.5 py-2 text-xs text-slate-100 focus:outline-none focus:border-purple-500">
+            <option value="local" selected>🎬 Dahili Doğa / Sinematik Motoru</option>
+            <option value="pexels">🌐 Pexels Video API (Otomatik Klip)</option>
+          </select>
+        </div>
+
+      </div>
+
+      <!-- Optional Pexels Key Box -->
+      <div id="studioPexelsBox" class="hidden bg-[#070b14] p-3 rounded-2xl border border-cyan-800/40 space-y-1.5">
+        <div class="flex items-center justify-between text-xs">
+          <span class="text-cyan-300 font-bold">🔑 Pexels API Anahtarı</span>
+          <a href="https://www.pexels.com/api/" target="_blank" class="text-sky-400 hover:underline text-[11px]">Ücretsiz Al ↗</a>
+        </div>
+        <input id="studioPexelsKey" type="text" placeholder="Pexels API Anahtarınızı yapıştırın (İsteğe bağlı)" class="w-full bg-[#0b101e] border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-cyan-500" />
+      </div>
+
+      <!-- Altyazı Seçeneği -->
+      <div class="flex items-center space-x-2 text-xs font-medium text-slate-300">
+        <input type="checkbox" id="studioSubtitleCheck" checked class="w-4 h-4 rounded bg-slate-800 border-slate-700 text-purple-600 focus:ring-purple-500 cursor-pointer" />
+        <label for="studioSubtitleCheck" class="cursor-pointer">📝 Sinematik Dinamik Altyazı Ekle (Otomatik Ses Senkronu)</label>
+      </div>
+
+      <!-- Generate Trigger Button -->
+      <div>
+        <button id="btnStartStudioGen" onclick="startStudioGeneration()" class="w-full py-3.5 px-6 rounded-2xl font-black text-sm text-white bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 shadow-xl shadow-purple-600/30 transition-all flex items-center justify-center space-x-2 border border-purple-400/30">
+          <span>🚀 Videoyu Üretmeye Başla</span>
+          <span class="text-xs bg-white/20 px-2 py-0.5 rounded-full uppercase tracking-wider font-bold">FFmpeg + Edge TTS</span>
+        </button>
+      </div>
+
+      <!-- Progress Tracker & Console Box -->
+      <div id="studioProgressBox" class="hidden space-y-3 bg-[#070b14] p-4 rounded-2xl border border-purple-500/30">
+        <div class="flex items-center justify-between text-xs">
+          <span class="font-bold text-purple-300 flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-purple-400 animate-ping"></span>
+            Canlı Üretim Konsolu
+          </span>
+          <span class="text-slate-400 text-[11px]">Senaryo ➔ Ses ➔ Altyazı ➔ Montaj</span>
+        </div>
+        <pre id="studioLogConsole" class="bg-[#05070d] p-3 rounded-xl border border-slate-800/80 text-[11px] text-emerald-400 font-mono leading-relaxed max-h-36 overflow-y-auto whitespace-pre-wrap">Üretim bekleniyor...</pre>
+      </div>
+
+      <!-- Video Result Section -->
+      <div id="studioResultBox" class="hidden space-y-3 bg-gradient-to-b from-purple-950/20 to-[#070b14] p-5 rounded-2xl border border-purple-500/50 shadow-2xl">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-2">
+            <span class="text-emerald-400 text-lg">✅</span>
+            <span class="text-sm font-extrabold text-white">Belgeseliniz Hazır!</span>
+          </div>
+          <a id="btnDownloadStudioVideo" href="#" download="predator_trails_documentary.mp4" class="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-bold transition-all shadow-lg shadow-emerald-950/50 flex items-center space-x-1.5">
+            <span>⬇️</span>
+            <span>MP4 İndir</span>
+          </a>
+        </div>
+        
+        <div class="flex justify-center bg-black rounded-2xl overflow-hidden border border-slate-800 max-h-[460px]">
+          <video id="studioVideoPlayer" controls class="w-full h-auto max-h-[460px] object-contain">
+            Tarayıcınız video etiketini desteklemiyor.
+          </video>
+        </div>
+      </div>
+
+      <!-- Footer Buttons -->
+      <div class="flex items-center justify-end space-x-3 pt-3 border-t border-slate-800">
+        <button onclick="closeVideoStudioModal()" class="px-5 py-2.5 rounded-xl bg-slate-800 text-slate-300 hover:text-white text-xs font-bold transition-all">
+          Kapat
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 📁 VİDEO KÜTÜPHANEM & DEPOLAMA YÖNETİMİ MODAL -->
+  <div id="videoLibraryModal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 hidden items-center justify-center p-3 sm:p-5">
+    <div class="bg-[#0b101e] border border-blue-500/40 rounded-3xl max-w-5xl w-full p-5 sm:p-7 shadow-2xl text-slate-100 max-h-[92vh] overflow-y-auto space-y-5 animate-in fade-in zoom-in-95 duration-200 custom-scrollbar">
+      
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between pb-4 border-b border-slate-800">
+        <div class="flex items-center space-x-3.5">
+          <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center text-2xl shadow-lg shadow-blue-500/25">
+            📁
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h2 class="text-lg font-black text-white">Video Kütüphanem</h2>
+              <span id="libTotalCount" class="text-[10px] px-2.5 py-0.5 rounded-full bg-blue-950/80 border border-blue-500/50 text-blue-300 font-bold">0 Video</span>
+              <span id="libTotalSize" class="text-[10px] px-2 py-0.5 rounded-full bg-slate-800 border border-slate-700 text-slate-300 font-semibold">0 MB</span>
+            </div>
+            <p class="text-xs text-slate-400 mt-0.5">Üretilen tüm videolar, senaryo geçmişi ve disk temizleme kontrol merkezi</p>
+          </div>
+        </div>
+
+        <div class="flex items-center space-x-2">
+          <button onclick="cleanBrokenVideos()" title="0 MB veya bitmemiş testleri sil" class="px-3 py-1.5 rounded-xl bg-rose-950/40 hover:bg-rose-900/60 border border-rose-500/50 text-rose-300 text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm">
+            <span>🧹</span>
+            <span id="libBrokenCount">Hatalı Taslakları Temizle</span>
+          </button>
+          <button onclick="loadVideoLibrary()" title="Listeyi Yenile" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-all text-xs font-bold">
+            🔄
+          </button>
+          <button onclick="closeVideoLibraryModal()" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-white transition-all text-sm font-bold">
+            ✕
+          </button>
+        </div>
+      </div>
+
+      <!-- Preview Player (Hidden until user clicks preview) -->
+      <div id="libPreviewContainer" class="hidden space-y-3 bg-[#070b14] p-4 rounded-2xl border border-blue-500/40">
+        <div class="flex items-center justify-between">
+          <span id="libPreviewTitle" class="text-xs font-bold text-blue-300 flex items-center gap-2">
+            <span>🎬</span> Video Önizleme
+          </span>
+          <button onclick="closeLibraryPreview()" class="text-xs text-slate-400 hover:text-white px-2 py-1 bg-slate-800 rounded-lg">
+            Önizlemeyi Kapat ✕
+          </button>
+        </div>
+        <div class="flex justify-center bg-black rounded-xl overflow-hidden border border-slate-800 max-h-[420px]">
+          <video id="libPreviewPlayer" controls class="w-full h-auto max-h-[420px] object-contain"></video>
+        </div>
+      </div>
+
+      <!-- Video Grid List -->
+      <div id="libVideoList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <!-- Rendered dynamically -->
+      </div>
+
+      <!-- Footer Buttons -->
+      <div class="flex items-center justify-between pt-3 border-t border-slate-800">
+        <span class="text-[11px] text-slate-500">Tüm videolar doğrudan <code>MoneyPrinterTurbo/storage/tasks</code> dizininde saklanmaktadır.</span>
+        <button onclick="closeVideoLibraryModal()" class="px-5 py-2.5 rounded-xl bg-slate-800 text-slate-300 hover:text-white text-xs font-bold transition-all">
+          Kapat
+        </button>
+      </div>
+
+    </div>
+  >
+
+</body>
+</html>
